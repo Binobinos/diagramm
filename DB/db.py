@@ -1,8 +1,9 @@
-from typing import Optional, List
+from typing import Optional, List, Any, Mapping
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from model.User import User
+from model.order import Orders
 
 
 class DB:
@@ -51,3 +52,29 @@ class DB:
         )
 
         return await self.get_user(user.id)
+
+    async def get_order(self, order_id: str) -> Optional[Orders]:
+        orders_data = await self.db["Orders"].find_one({"id": order_id})
+        if orders_data:
+            return Orders(**orders_data)
+        else:
+            return None
+
+    async def insert_order(self, order: Orders) -> Orders:
+        await self.db["Orders"].insert_one(order.model_dump())
+        return order
+
+    async def delete_order(self, order: Orders):
+        await self.db["Orders"].delete_one({"id": order.id})
+        return order
+
+    async def update_order(self, order: Orders) -> Orders:
+        await self.db["Orders"].update_one(
+            {"id": order.id},
+            {"$set": order.model_dump()}
+        )
+
+        return await self.get_order(order.id)
+
+    async def get_all_orders(self) -> list[Mapping[str, Any] | Any]:
+        return await self.db["Orders"].find().to_list(None)

@@ -1,15 +1,18 @@
 import asyncio
 import datetime
 from uuid import uuid4
+
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
+from model.reqwest import Reqwest
 import config
 from DB.db import DB
 from keyboards.keyboard import *
 from model.temp_Order import Temp_order
+from states.states import Registration, EditAccount, Support
 
 bot = Bot(token=config.BOT_TOKEN)
 storage = MemoryStorage()
@@ -49,29 +52,6 @@ type_items = {"Работа на уроке": 1, "Самостоятельная
               "Контрольная работа": 1.06}
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-
-
-class Registration(StatesGroup):
-    select_parallel = State()
-    select_class = State()
-    enter_fio = State()
-    password = State()
-
-
-class EditAccount(StatesGroup):
-    select_field = State()
-    edit_parallel = State()
-    edit_class = State()
-    edit_fio = State()
-
-
-class Authorization(StatesGroup):
-    enter_password = State()
-
-
-class Support(StatesGroup):
-    message = State()
-
 
 async def send_admins(text: str, keyboard, user: User):
     admins = await mongo_db.get_admins()
@@ -118,7 +98,7 @@ async def show_predmets_menu(user_id: int):
 
 async def show_order(user_id: int):
     logging.info(f"пользователь {user_id} открыл корзину")
-    a = []
+    a = list()
     acc = await mongo_db.get_user(user_id)
     b = 0.00
     for number, i in enumerate(acc.order.products):
@@ -696,6 +676,7 @@ async def edit_fio(message: types.Message, state: FSMContext):
     messages = message.text.strip()
     acc = await mongo_db.get_user(user_id)
     logging.info(f"пользователь {message.from_user.username} отправил сообщение тех поддержке:\n{messages}")
+    request = Reqwest(id_=str(uuid4())[:8],user_id=user_id,username=message.from_user.username,)
     await message.answer("✅ Сообщение успешно отправленною")
     await state.clear()
     await send_admins(f"{datetime.date.today()} - {messages}", support_admin_menu_kb(user_id), acc)
@@ -711,6 +692,8 @@ async def support(callback: types.CallbackQuery, state: FSMContext):
 
 async def main():
     logging.info(f"Бот запущен")
+    print(datetime.date.today())
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
 

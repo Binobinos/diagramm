@@ -3,7 +3,7 @@ from uuid import uuid4  # Используем UUID вместо int
 
 from pydantic import BaseModel
 
-from model.Order import Orders
+from model.order import Orders
 
 
 class User(BaseModel):

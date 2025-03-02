@@ -1,5 +1,5 @@
 import logging
-from model.Order import Orders
+from model.order import Orders
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from typing import List
@@ -71,10 +71,10 @@ def support_menu_kb():
 def support_admin_menu_kb(id_):
     builder = InlineKeyboardBuilder()
     builder.button(text="📙 популярный ответ 1", callback_data=f"answer_{id_}_123")
-    builder.button(text="📙 популярный ответ 1", callback_data=f"answer_{id_}_{text_1}")
-    builder.button(text="📂 популярный ответ 2", callback_data=f"answer_{id_}_{text_2}")
-    builder.button(text="🔑 популярный ответ 3", callback_data=f"answer_{id_}_{text_3}")
-    builder.button(text="🛠 популярный ответ 4", callback_data=f"answer_{id_}_{text_4}")
+    #builder.button(text="📙 популярный ответ 1", callback_data=f"answer_{id_}_{text_1}")
+    #builder.button(text="📂 популярный ответ 2", callback_data=f"answer_{id_}_{text_2}")
+    #builder.button(text="🔑 популярный ответ 3", callback_data=f"answer_{id_}_{text_3}")
+    #builder.button(text="🛠 популярный ответ 4", callback_data=f"answer_{id_}_{text_4}")
     return main_kb(builder, ad=1)
 
 
