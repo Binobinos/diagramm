@@ -1,23 +1,21 @@
 import asyncio
 import datetime
 from uuid import uuid4
-print("Комментарий")
-# комментарий 2 _()
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
-
+import config
 from DB.db import DB
 from keyboards.keyboard import *
 from model.temp_Order import Temp_order
 
-bot = Bot(token=r"6502461134:AAGpWmNQ3Zkhjgs4SVOTeCX4QjooN_otehk")
+bot = Bot(token=config.BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
-mongo_db = DB("mongodb://localhost:27017/", "login")
+mongo_db = DB(config.MONGO_DB_URL, "login")
 user_menu_messages = {}
 parallels = {
     "5": [["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", 'У'],
