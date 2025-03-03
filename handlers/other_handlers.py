@@ -1,10 +1,11 @@
 import asyncio
 import datetime
+
 from aiogram import Router, F
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram import types
 from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 from Nots.test import *
 from dob_func.dob_func import *
 from keyboards.keyboard import error_menu_kb
@@ -24,10 +25,10 @@ async def cmd_start(message: types.Message, state: FSMContext):
     if acc is None:
         logging.info(f"пользователь {user_name} нажал start")
         await message.answer("👋 Добро пожаловать! Для начала создайте свой первый аккаунт.")
-        await start_registration(user_id, state)
+        await start_registration(router, user_id, state)
     else:
         if not acc.ban:
-            await show_main_menu(user_id)
+            await show_main_menu(router, user_id)
         else:
             logging.info(f"забаненный пользователь {user_name} нажал start")
             await message.answer("👋 Вы забанены")
@@ -41,11 +42,11 @@ async def back_to_main(callback: types.CallbackQuery, state: FSMContext):
     if acc is None:
         logging.info(f"пользователь {user_name} нажал start")
         await callback.answer("👋 Добро пожаловать! Для начала создайте свой первый аккаунт.")
-        await start_registration(user_id, state)
+        await start_registration(router, user_id, state)
     else:
         if not acc.ban:
             logging.info(f"пользователь {callback.from_user.username} переходит в главное меню")
-            await show_main_menu(callback.from_user.id)
+            await show_main_menu(router, callback.from_user.id)
             await callback.answer()
         else:
             logging.info(f"забаненный пользователь {user_name} нажал start")
@@ -55,34 +56,37 @@ async def back_to_main(callback: types.CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == "Technical_support")
 async def support(callback: types.CallbackQuery, state: FSMContext):
     logging.info(f"пользователь {callback.from_user.username} нажал на тех-поддержку")
-    await start_help(callback.from_user.id, state)
+    await start_help(router, callback.from_user.id, state)
     await callback.answer()
 
 
 @router.callback_query(F.data == "_")
 async def error(callback: types.CallbackQuery):
+    """ Ошибка хандлера"""
     await callback.answer()
     text = (
         "🌟 Функция в разработке 😓...\n"
         "Но вы можете перейти к тестированию других функций"
     )
-    await send_or_edit_menu(callback.from_user.id, text, error_menu_kb())
+    await send_or_edit_menu(router, callback.from_user.id, text, error_menu_kb())
 
 
 @router.callback_query(F.data.startswith("answer_"))
 async def send_answer(callback: types.CallbackQuery):
+    """ Отправляет пользователю сообщение от администрации"""
     id_ = int(callback.data.split("_")[1])
-    await send_or_edit_menu(
-        id_,
-        f"Вам п️р️и️ш️л️о️ сообщение от администрации в {datetime.date.today()}!\n{callback.data.split("_")[2]}",
-        InlineKeyboardBuilder().button(text="⬅️ В главное меню", callback_data="main_menu").as_markup()
-    )
-    logging.info(f"пользователь {callback.from_user.username} получмл ответ")
+    await send_or_edit_menu(router, id_,
+                            f"Вам п️р️и️ш️л️о️ сообщение от администрации в {datetime.date.today()}!\n"
+                            f"{callback.data.split("_")[2]}",
+                            InlineKeyboardBuilder().button(text="⬅️ В главное меню",
+                                                           callback_data="main_menu").as_markup())
+    logging.info(f"пользователь {callback.from_user.username} получил ответ")
     await callback.answer()
 
 
 @router.callback_query(F.data == "homework")
-async def send_answer(callback: types.CallbackQuery):
+async def homework(callback: types.CallbackQuery):
+    """ Показывает домашнею работу"""
     id_ = int(callback.from_user.id)
     acc = await mongo_db.get_user(id_)
     auth = SchoolAuth()
@@ -108,6 +112,7 @@ async def send_answer(callback: types.CallbackQuery):
     animation_task = asyncio.create_task(animate_progress())
 
     try:
+        result = "Ничего не задано или не найдено"
         if auth.login(config.USER_LOGIN, config.USER_PASSWORD):
             # Запускаем синхронную задачу в потоке
             result = await asyncio.to_thread(
@@ -125,11 +130,9 @@ async def send_answer(callback: types.CallbackQuery):
         await progress_msg.delete()
 
         # Отправляем финальное сообщение
-        await send_or_edit_menu(
-            id_,
-            f"{result}",
-            InlineKeyboardBuilder().button(text="⬅️ В главное меню", callback_data="main_menu").as_markup()
-        )
+        await send_or_edit_menu(router, id_, f"{result}",
+                                InlineKeyboardBuilder().button(text="⬅️ В главное меню",
+                                                               callback_data="main_menu").as_markup())
 
     except Exception as e:
         stop_event.set()

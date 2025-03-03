@@ -7,72 +7,78 @@ from model.order import Orders
 
 router = Router()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-type_items = {"Работа на уроке": 1, "Самостоятельная работа": 1.04, "Проверочная работа": 1.05,
-              "Контрольная работа": 1.06}
 
 
 @router.callback_query(F.data == "order")
 async def show_my_order(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл корзиину")
-    await show_order(callback.from_user.id)
+    """ Открывает корзину"""
+    logging.info(f"пользователь {callback.from_user.username} открыл корзину")
+    await show_order(router, callback.from_user.id)
     await callback.answer()
 
 
 @router.callback_query(F.data.startswith("*order-new_"))
 async def show_admin_order(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл корзиину")
+    """ Просмотр корзины пользователя"""
+    logging.info(f"пользователь {callback.from_user.username} открыл корзину")
     ids = callback.data.split('_')[1]
     order = await mongo_db.get_order(ids)
-    await show_client_order(order, callback.from_user.id)
+    await show_client_order(router, order, callback.from_user.id)
     await callback.answer()
 
 
 @router.callback_query(F.data.startswith("Orders_"))
-async def start_create_account(callback: types.CallbackQuery):
+async def admin_show_orders(callback: types.CallbackQuery):
+    """ Меню заказов для админов """
     start = int(callback.data.split("_")[1])
     logging.info(f"Админ {callback.from_user.username} переходит в заказы c {start}")
     await show_orders_menu(callback.from_user.id, start)
 
 
 @router.callback_query(F.data.startswith("Technical_support_"))
-async def Technical_support_menu(callback: types.CallbackQuery):
+async def technical_support_menu(callback: types.CallbackQuery):
+    """ Открывает меню заказов администратору """
     start = int(callback.data.split("_")[2])
     logging.info(f"Админ {callback.from_user.username} переходит в заказы c {start}")
     await Technical_support_orders_menu(callback.from_user.id, start)
 
+
 @router.callback_query(F.data.startswith("*Technical-support_"))
 async def show_admin_order(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл корзиину")
+    """ Открывает корзину пользователя """
+    logging.info(f"пользователь {callback.from_user.username} открыл корзину")
     print(callback.data)
     ids = callback.data.split('_')[1]
     order = await mongo_db.get_reqwest(ids)
     print(order)
-    await show_client_reqwest(order, callback.from_user.id)
+    await show_client_reqwest(router, order, callback.from_user.id)
     await callback.answer()
 
 
-
-@router.callback_query(F.data == "add_corzin")
-async def back_to_main(callback: types.CallbackQuery):
+@router.callback_query(F.data == "add_basket")
+async def add_basket_main(callback: types.CallbackQuery):
+    """ Добавляет товар в корзину и переходит в главное меню """
     acc = await create_temp_order(callback.from_user.id)
     logging.info(
-        f"пользователь {callback.from_user.username} Добавляет в карзину товар \n"
+        f"пользователь {callback.from_user.username} Добавляет в корзину товар \n"
         f"{show_tofar(acc)} \n и переходит в главное меню")
-    await show_main_menu(callback.from_user.id)
+    await show_main_menu(router, callback.from_user.id)
     await callback.answer()
 
 
-@router.callback_query(F.data == "order_zakaz")
-async def back_to_main(callback: types.CallbackQuery):
+@router.callback_query(F.data == "Order_show")
+async def add_basket_order(callback: types.CallbackQuery):
+    """ Добавляет товар в корзину и переходит в корзину """
     acc = await create_temp_order(callback.from_user.id)
     logging.info(
-        f"пользователь {callback.from_user.username} Добавляет в карзину товар \n"
+        f"пользователь {callback.from_user.username} Добавляет в корзину товар \n"
         f"{show_tofar(acc)} \n и переходит в корзину")
     await show_my_order(callback)
 
 
-@router.callback_query(F.data == "pay")
-async def back_to_main(callback: types.CallbackQuery):
+@router.callback_query(F.data.lower() == "pay")
+async def add_orders(callback: types.CallbackQuery):
+    """ Пост-Оплата товара """
     acc = await mongo_db.get_user(callback.from_user.id)
     acc.order.price = sum(item.price * item.discount for item in acc.order.products)
     acc.order.full_name = acc.full_name
@@ -82,8 +88,8 @@ async def back_to_main(callback: types.CallbackQuery):
     await mongo_db.insert_order(acc.order)
     acc.order = Orders(id=str(uuid4()), product=[])
     await mongo_db.update_user(acc)
-    await send_admins(f"🎉 Вам пришёл заказ!", order_admin_menu_kb(), acc)
+    await send_admins(router, f"🎉 Вам пришёл заказ!", order_admin_menu_kb(), acc)
     logging.info(
-        f"пользователь {callback.from_user.username} п в карзину товар \n"
-        f"{show_tofar(acc)} \n и переходит в корзину")
-    await show_main_menu(callback.from_user.id)
+        f"пользователь {callback.from_user.username} оплачивает товар \n"
+        f"{show_tofar(acc)}")
+    await show_main_menu(router, callback.from_user.id)

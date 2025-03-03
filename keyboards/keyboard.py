@@ -156,7 +156,6 @@ def predmet_menu_kb(paralell: str, parallels):
 def edit_account_kb():
     builder = InlineKeyboardBuilder()
     builder.button(text="✏️ ФИО", callback_data="edit_fio")
-    # builder.button(text="📚 Параллель", callback_data="edit_parallel")
     builder.button(text="🏫 Класс", callback_data="edit_parallel")
     builder.button(text="🗑 Удалить", callback_data="delete_account")
     return main_kb(builder)
@@ -164,10 +163,10 @@ def edit_account_kb():
 
 def edit_zacaz_kb():
     builder = InlineKeyboardBuilder()
-    builder.button(text="Всё ок! 👍", callback_data="add_corzin")
+    builder.button(text="Всё ок! 👍", callback_data="add_basket")
     builder.button(text="🗑 Удалить", callback_data="main_menu")
-    builder.button(text="🛒 Корзина", callback_data="order_zakaz")
-    return main_kb(builder, text="⬅️ В главное меню", callback_data="add_corzin")
+    builder.button(text="🛒 Корзина", callback_data="Order_show")
+    return main_kb(builder, text="⬅️ В главное меню", callback_data="add_basket")
 
 
 def korzin_null():
