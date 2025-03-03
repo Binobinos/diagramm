@@ -26,18 +26,18 @@ def main_menu_kb(acc: User):
     builder.adjust(2)
     if acc.user_level == "admin":
         builder.button(text="Заказы", callback_data="Orders_0")
-        builder.button(text="🛠 Обращения в Тех-поддержка", callback_data="Technical_support_menu")
-        builder.button(text="🛠 Настройки бота", callback_data="settings")
-        builder.button(text="🛠 Статистика", callback_data="settings")
+        builder.button(text="🛠 Обращения в Тех-поддержка", callback_data="_")
+        builder.button(text="🛠 Настройки бота", callback_data="_")
+        builder.button(text="🛠 Статистика", callback_data="_")
         builder.adjust(1)
     return builder.as_markup()
 
 
-def orders_menu_kb(orders:list,start:int=0):
+def orders_menu_kb(orders:List[Orders],start:int=0):
     builder = InlineKeyboardBuilder()
     if not start+6 > len(orders):
         for number, order in enumerate(orders[start:start+6]):
-            builder.button(text=f"Заказ {number+1+start}", callback_data="_")
+            builder.button(text=f"Заказ {number+1+start}", callback_data=f"*order-new_{order.id}")
         if not start == 0:
             builder.button(text=f"<<", callback_data=f"Orders_{start-6}")
             builder.button(text=f">>", callback_data=f"Orders_{start + 6}")
@@ -67,7 +67,16 @@ def support_menu_kb():
     builder.button(text="🛠 популярный вопрос 4", callback_data="_")
     return main_kb(builder, ad=1)
 
+def orders_admin_menu_kb():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Выполнил✅", callback_data="_")
+    builder.button(text="Не выполнил ❌", callback_data="_")
+    builder.button(text="", callback_data="_")
+    return main_kb(builder, ad=1)
 
+def error_menu_kb():
+    builder = InlineKeyboardBuilder()
+    return main_kb(builder, ad=1)
 def support_admin_menu_kb(id_):
     builder = InlineKeyboardBuilder()
     builder.button(text="📙 популярный ответ 1", callback_data=f"answer_{id_}_123")
@@ -75,6 +84,10 @@ def support_admin_menu_kb(id_):
     #builder.button(text="📂 популярный ответ 2", callback_data=f"answer_{id_}_{text_2}")
     #builder.button(text="🔑 популярный ответ 3", callback_data=f"answer_{id_}_{text_3}")
     #builder.button(text="🛠 популярный ответ 4", callback_data=f"answer_{id_}_{text_4}")
+    return main_kb(builder, ad=1)
+
+def order_admin_menu_kb():
+    builder = InlineKeyboardBuilder()
     return main_kb(builder, ad=1)
 
 

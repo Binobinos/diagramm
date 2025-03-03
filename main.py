@@ -1,11 +1,9 @@
 import asyncio
 import datetime
 from uuid import uuid4
-
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from model.reqwest import Reqwest
 import config
@@ -183,10 +181,29 @@ async def show_my_order(callback: types.CallbackQuery):
     await show_order(callback.from_user.id)
     await callback.answer()
 
+@dp.callback_query(F.data.startswith("*order-new_"))
+async def show_admin_order(callback: types.CallbackQuery):
+    logging.info(f"пользователь {callback.from_user.username} открыл корзиину")
+    await show_order(callback.from_user.id)
+    await callback.answer()
+
+@dp.callback_query(F.data == "_")
+async def errorr(callback: types.CallbackQuery):
+    await callback.answer()
+    orders = await mongo_db.get_all_orders()
+    text = (
+        "🌟 Функция в разработке 😓...\n"
+        "Но вы можете перейти к тестированию других функций"
+    )
+    await send_or_edit_menu(callback.from_user.id, text, error_menu_kb())
+
+
+
+
 
 async def show_orders_menu(user_id: int, start=0):
     logging.info(f"админ {user_id} открыл меню заказов")
-    orders = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    orders = await mongo_db.get_all_orders()
     text = (
         "🌟 Заказы:\n\n"
         "Здесь вы можете управлять заказами\n"
@@ -407,8 +424,10 @@ async def back_to_main(callback: types.CallbackQuery):
 async def back_to_main(callback: types.CallbackQuery):
     acc = await mongo_db.get_user(callback.from_user.id)
     acc.order.price = sum(item.price * item.discount for item in acc.order.products)
-    acc.order.discount = map(lambda x: sum(x) / len(x), list(item.price * item.discount for item in acc.order.products))
+    await mongo_db.insert_order(acc.order)
+    acc.order = Orders(id=str(uuid4()), product=[])
     await mongo_db.update_user(acc)
+    await send_admins(f"🎉 Вам пришёл заказ!", order_admin_menu_kb(), acc)
     logging.info(
         f"пользователь {callback.from_user.username} п в карзину товар \n"
         f"{show_tofar(acc)} \n и переходит в корзину")
@@ -676,7 +695,7 @@ async def edit_fio(message: types.Message, state: FSMContext):
     messages = message.text.strip()
     acc = await mongo_db.get_user(user_id)
     logging.info(f"пользователь {message.from_user.username} отправил сообщение тех поддержке:\n{messages}")
-    request = Reqwest(id_=str(uuid4())[:8],user_id=user_id,username=message.from_user.username,)
+    request = Reqwest(id_=str(uuid4())[:8],user_id=user_id,username=message.from_user.username,messages=messages,type="Сообщение")
     await message.answer("✅ Сообщение успешно отправленною")
     await state.clear()
     await send_admins(f"{datetime.date.today()} - {messages}", support_admin_menu_kb(user_id), acc)
@@ -693,7 +712,6 @@ async def support(callback: types.CallbackQuery, state: FSMContext):
 async def main():
     logging.info(f"Бот запущен")
     print(datetime.date.today())
-    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
 
