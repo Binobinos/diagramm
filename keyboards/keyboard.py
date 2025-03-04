@@ -37,7 +37,7 @@ def orders_menu_kb(orders:List[Orders],start:int=0):
     builder = InlineKeyboardBuilder()
     if not start+6 > len(orders):
         for number, order in enumerate(orders[start:start+6]):
-            builder.button(text=f"Заказ {number+1+start}", callback_data=f"*order-new_{order.id}")
+            builder.button(text=f"Заказ {number+1+start} - {order.username}", callback_data=f"*order-new_{order.id}")
         if not start == 0:
             builder.button(text=f"<<", callback_data=f"Orders_{start-6}")
             builder.button(text=f">>", callback_data=f"Orders_{start + 6}")
@@ -45,7 +45,7 @@ def orders_menu_kb(orders:List[Orders],start:int=0):
             builder.button(text=f">>", callback_data=f"Orders_{start + 6}")
     else:
         for number, order in enumerate(orders[start:]):
-            builder.button(text=f"Заказ {number+1+start}", callback_data="_")
+            builder.button(text=f"Заказ {number+1+start} - {order.username}", callback_data=f"*order-new_{order.id}")
         builder.button(text=f"<<", callback_data=f"Orders_{start-6}")
     return main_kb(builder, ad=1)
 

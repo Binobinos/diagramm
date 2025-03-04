@@ -1,14 +1,17 @@
 import asyncio
 import datetime
 from uuid import uuid4
+
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
-from model.reqwest import Reqwest
+from handlers import helps_handlers
 import config
 from DB.db import DB
 from keyboards.keyboard import *
+from model.order import Orders
+from model.reqwest import Reqwest
 from model.temp_Order import Temp_order
 from states.states import Registration, EditAccount, Support
 
@@ -18,6 +21,7 @@ dp = Dispatcher(storage=storage)
 
 mongo_db = DB(config.MONGO_DB_URL, "login")
 user_menu_messages = {}
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 parallels = {
     "5": [["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", 'У'],
           ['Биология', "География", "ИЗО", "Английский язык", "Информатика", "Литература", "Математика", "Музыка",
@@ -49,7 +53,17 @@ parallels = {
 type_items = {"Работа на уроке": 1, "Самостоятельная работа": 1.04, "Проверочная работа": 1.05,
               "Контрольная работа": 1.06}
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+
+async def show_orders_menu(user_id: int, start=0):
+    logging.info(f"админ {user_id} открыл меню заказов")
+    orders = await mongo_db.get_all_orders()
+    orders = list(Orders(**i) for i in orders)[::-1]
+    text = (
+        "🌟 Заказы:\n\n"
+        "Здесь вы можете управлять заказами\n"
+        f"Активных заказов: {len(orders)}"
+    )
+    await send_or_edit_menu(user_id, text, orders_menu_kb(orders, start))
 
 async def send_admins(text: str, keyboard, user: User):
     admins = await mongo_db.get_admins()
@@ -71,6 +85,15 @@ def show_tofar(acc: User, _id=-1):
             f"Предмет - {acc.order.products[_id].object}\n"
             f"Оценка - {acc.order.products[_id].estimation}\n"
             f"Цена - {acc.order.products[_id].price}\n")
+
+
+def show_orders(acc: Orders, _id=-1):
+    return (f"ID - {acc.products[_id].id[:8]}\n"
+            f"Тип оценки - {acc.products[_id].type}\n"
+            f"Четверть - {acc.products[_id].quarter}\n"
+            f"Предмет - {acc.products[_id].object}\n"
+            f"Оценка - {acc.products[_id].estimation}\n"
+            f"Цена - {acc.products[_id].price}\n")
 
 
 async def show_main_menu(user_id: int):
@@ -106,10 +129,10 @@ async def show_order(user_id: int):
     if acc.order.products:
         text = (
             "🎉 Здравствуйте! Это ваша корзина\n"
-            f"📙 Вы можете удалить или изменить ваши товары\n============\n{"\n -------------------- \n".join(a)}\n"
-            f"\n============\n Общая цена заказа {b} рублей ₽"
+            f"📙 Вы можете удалить или изменить ваши товары\n============\n{"\n --------------------".join(a)}"
+            f"============\n Общая цена заказа {b} рублей ₽"
         )
-        logging.info(f"у пользователя {user_id} корзина:\n{"\n -------------------- \n".join(a)}")
+        logging.info(f"у пользователя {user_id} корзина:{"\n -------------------- \n".join(a)}")
         await send_or_edit_menu(user_id, text, order_kb_show(acc))
     else:
         text = (
@@ -118,6 +141,22 @@ async def show_order(user_id: int):
         )
         logging.info(f"у пользователя {user_id} пустая корзина")
         await send_or_edit_menu(user_id, text, korzin_null())
+
+
+async def show_client_order(order: Orders, admin_id):
+    logging.info(f"Админ {admin_id} Смотриn корзину пользователя {order.username} - {order.id}")
+    a = list()
+    b = 0.00
+    for number, i in enumerate(order.products):
+        a.append(
+            str(f"Товар №{int(number) + 1} : \n {show_orders(order, number)}"))
+        b = float(sum(list(order.products[number].price for number, i in enumerate(order.products))))
+    text = (
+        "🎉 Здравствуйте! Это ваша корзина\n"
+        f"📙 Вы можете удалить или изменить ваши товары\n============\n{"--------------------\n".join(a)}"
+        f"============\n Общая цена заказа {b} рублей ₽"
+    )
+    await send_or_edit_menu(admin_id, text, orders_admin_menu_kb())
 
 
 async def send_or_edit_menu(user_id: int, text: str, keyboard):
@@ -181,16 +220,19 @@ async def show_my_order(callback: types.CallbackQuery):
     await show_order(callback.from_user.id)
     await callback.answer()
 
+
 @dp.callback_query(F.data.startswith("*order-new_"))
 async def show_admin_order(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} открыл корзиину")
-    await show_order(callback.from_user.id)
+    ids = callback.data.split('_')[1]
+    order = await mongo_db.get_order(ids)
+    await show_client_order(order, callback.from_user.id)
     await callback.answer()
+
 
 @dp.callback_query(F.data == "_")
 async def errorr(callback: types.CallbackQuery):
     await callback.answer()
-    orders = await mongo_db.get_all_orders()
     text = (
         "🌟 Функция в разработке 😓...\n"
         "Но вы можете перейти к тестированию других функций"
@@ -199,112 +241,11 @@ async def errorr(callback: types.CallbackQuery):
 
 
 
-
-
-async def show_orders_menu(user_id: int, start=0):
-    logging.info(f"админ {user_id} открыл меню заказов")
-    orders = await mongo_db.get_all_orders()
-    text = (
-        "🌟 Заказы:\n\n"
-        "Здесь вы можете управлять заказами\n"
-        f"Активных заказов: {len(orders)}"
-    )
-    await send_or_edit_menu(user_id, text, orders_menu_kb(orders, start))
-
-
 @dp.callback_query(F.data.startswith("Orders_"))
 async def start_create_account(callback: types.CallbackQuery):
     start = int(callback.data.split("_")[1])
     logging.info(f"Админ {callback.from_user.username} переходит в заказы c {start}")
     await show_orders_menu(callback.from_user.id, start)
-
-
-"""
-                Помощь и её меню
-
-"""
-
-
-@dp.callback_query(F.data == "help")
-async def help_(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_menu(callback.from_user.id)
-    await callback.answer()
-
-
-@dp.callback_query(F.data == "help_1")
-async def help_1(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_1_menu(callback.from_user.id)
-    await callback.answer()
-
-
-@dp.callback_query(F.data == "help_2")
-async def help_2(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_2_menu(callback.from_user.id)
-    await callback.answer()
-
-
-@dp.callback_query(F.data == "help_3")
-async def help_3(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_3_menu(callback.from_user.id)
-    await callback.answer()
-
-
-@dp.callback_query(F.data == "help_4")
-async def help_4(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_4_menu(callback.from_user.id)
-    await send_admins("тест отправки всем админам", help_menu_kb())
-    await callback.answer()
-
-
-async def help_menu(user_id: int):
-    logging.info(f"пользователь {user_id} открыл меню помощи")
-    text = (
-        "❔ Выберите интересующий вас раздел"
-    )
-    await send_or_edit_menu(user_id, text, help_menu_kb())
-
-
-async def help_1_menu(user_id: int):
-    logging.info(f"пользователь {user_id} открыл меню помощи")
-    text = (
-        "оплата"
-    )
-    await send_or_edit_menu(user_id, text, help_menu_kb())
-
-
-async def help_2_menu(user_id: int):
-    logging.info(f"пользователь {user_id} открыл меню помощи")
-    text = (
-        "❔ цена"
-    )
-    await send_or_edit_menu(user_id, text, help_menu_kb())
-
-
-async def help_3_menu(user_id: int):
-    logging.info(f"пользователь {user_id} открыл меню помощи")
-    text = (
-        "❔ безопасность"
-    )
-    await send_or_edit_menu(user_id, text, help_menu_kb())
-
-
-async def help_4_menu(user_id: int):
-    logging.info(f"пользователь {user_id} открыл меню помощи")
-    text = (
-        "❔ гарантии"
-    )
-    await send_or_edit_menu(user_id, text, help_menu_kb())
-
-
-"""
-
-
-"""
 
 
 @dp.callback_query(F.data == "my_accounts")
@@ -424,6 +365,10 @@ async def back_to_main(callback: types.CallbackQuery):
 async def back_to_main(callback: types.CallbackQuery):
     acc = await mongo_db.get_user(callback.from_user.id)
     acc.order.price = sum(item.price * item.discount for item in acc.order.products)
+    acc.order.full_name = acc.full_name
+    acc.order.username = acc.username
+    acc.order.parallel = acc.parallel
+    acc.order.class_name = acc.class_name
     await mongo_db.insert_order(acc.order)
     acc.order = Orders(id=str(uuid4()), product=[])
     await mongo_db.update_user(acc)
@@ -695,7 +640,8 @@ async def edit_fio(message: types.Message, state: FSMContext):
     messages = message.text.strip()
     acc = await mongo_db.get_user(user_id)
     logging.info(f"пользователь {message.from_user.username} отправил сообщение тех поддержке:\n{messages}")
-    request = Reqwest(id_=str(uuid4())[:8],user_id=user_id,username=message.from_user.username,messages=messages,type="Сообщение")
+    request = Reqwest(id_=str(uuid4())[:8], user_id=user_id, username=message.from_user.username, messages=messages,
+                      type="Сообщение")
     await message.answer("✅ Сообщение успешно отправленною")
     await state.clear()
     await send_admins(f"{datetime.date.today()} - {messages}", support_admin_menu_kb(user_id), acc)
@@ -711,7 +657,8 @@ async def support(callback: types.CallbackQuery, state: FSMContext):
 
 async def main():
     logging.info(f"Бот запущен")
-    print(datetime.date.today())
+    dp.include_router(helps_handlers.router)
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
 

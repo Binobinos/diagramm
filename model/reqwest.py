@@ -8,6 +8,6 @@ class Reqwest(BaseModel):
     id_: str = str(uuid4())[:8]
     user_id: int
     username: str
-    datetime:str = str(datetime.datetime.now())
-    messages:str
-    type:str
+    datetime: str = str(datetime.datetime.now())
+    messages: str
+    type: str
