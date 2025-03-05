@@ -174,3 +174,44 @@ async def start_help(user_id: int, state: FSMContext):
         "Введите сообщение тех поддержке",
         support_menu_kb()
     )
+
+
+async def help_menu(user_id: int):
+    logging.info(f"пользователь {user_id} открыл меню помощи")
+    text = (
+        "❔ Выберите интересующий вас раздел"
+    )
+    await send_or_edit_menu(user_id, text, help_menu_kb())
+
+
+async def help_1_menu(user_id: int):
+    logging.info(f"пользователь {user_id} открыл меню помощи")
+    text = (
+        "оплата"
+    )
+    await send_or_edit_menu(user_id, text, help_menu_kb())
+
+
+async def help_2_menu(user_id: int):
+    logging.info(f"пользователь {user_id} открыл меню помощи")
+    text = (
+        "❔ цена"
+    )
+    await send_or_edit_menu(user_id, text, help_menu_kb())
+
+
+async def help_3_menu(user_id: int):
+    logging.info(f"пользователь {user_id} открыл меню помощи")
+    text = (
+        "❔ безопасность"
+    )
+    await send_or_edit_menu(user_id, text, help_menu_kb())
+
+
+async def help_4_menu(user_id: int):
+    logging.info(f"пользователь {user_id} открыл меню помощи")
+    text = (
+        "❔ гарантии"
+    )
+    await send_or_edit_menu(user_id, text, help_menu_kb())
+
