@@ -1,7 +1,12 @@
+from aiogram import Router
+
 from dob_func.dob_func import *
-from aiogram import Router, types
+
 router = Router()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+type_items = {"Работа на уроке": 1, "Самостоятельная работа": 1.04, "Проверочная работа": 1.05,
+              "Контрольная работа": 1.06}
+
 
 @router.callback_query(F.data == "my_predmet")
 async def show_my_predmet(callback: types.CallbackQuery):

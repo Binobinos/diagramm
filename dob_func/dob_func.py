@@ -1,8 +1,9 @@
-from keyboards.keyboard import *
-import config
 from main import *
+
 bot = Bot(token=config.BOT_TOKEN)
 user_menu_messages = {}
+
+
 async def send_or_edit_menu(user_id: int, text: str, keyboard):
     try:
         if user_id in user_menu_messages:
@@ -18,6 +19,7 @@ async def send_or_edit_menu(user_id: int, text: str, keyboard):
     except Exception:
         msg = await bot.send_message(user_id, text, reply_markup=keyboard)
         user_menu_messages[user_id] = msg.message_id
+
 
 mongo_db = DB(config.MONGO_DB_URL, "login")
 parallels = {
@@ -214,4 +216,3 @@ async def help_4_menu(user_id: int):
         "❔ гарантии"
     )
     await send_or_edit_menu(user_id, text, help_menu_kb())
-
