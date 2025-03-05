@@ -1,4 +1,16 @@
+from uuid import uuid4
+
+from aiogram import Bot
+from aiogram.fsm.context import FSMContext
+
+from dob_func.price import calculating_the_price
+from keyboards.keyboard import help_menu_kb, support_menu_kb, parallels_kb, orders_admin_menu_kb, korzin_null, \
+    order_kb_show, predmet_menu_kb, main_menu_kb, orders_menu_kb
 from main import *
+from model.User import User
+from model.order import Orders
+from model.temp_Order import Temp_order
+from states.states import Support, Registration
 
 bot = Bot(token=config.BOT_TOKEN)
 user_menu_messages = {}
@@ -216,3 +228,17 @@ async def help_4_menu(user_id: int):
         "❔ гарантии"
     )
     await send_or_edit_menu(user_id, text, help_menu_kb())
+
+
+async def create_temp_order(user_id: int):
+    acc = await mongo_db.get_user(user_id)
+    temp_order = Temp_order(id=str(uuid4()), object=acc.temp_order["предмет"], quarter=acc.temp_order["Четверть"],
+                            type=acc.temp_order["Тип оценки"], estimation=acc.temp_order["Оценка"], price=int(
+            calculating_the_price({acc.temp_order["Тип оценки"]: {"1 Оценка": 0,
+                                                                  "2 Оценка": acc.temp_order["Оценка"],
+                                                                  "предмет": acc.temp_order["предмет"]}})))
+    acc.order.products.append(temp_order)
+    acc.temp_order = {}
+    await mongo_db.update_user(acc)
+    acc = await mongo_db.get_user(user_id)
+    return acc

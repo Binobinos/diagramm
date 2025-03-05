@@ -1,4 +1,4 @@
-from typing import List, Union,Optional
+from typing import List, Union, Optional
 from uuid import uuid4
 
 from pydantic import BaseModel

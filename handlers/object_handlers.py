@@ -1,6 +1,10 @@
-from aiogram import Router
+from aiogram import Router, F
+from aiogram import types
 
 from dob_func.dob_func import *
+from dob_func.price import calculating_the_price
+from keyboards.keyboard import accounts_cht_kb, accounts_type_kb, accounts_tip_o_kb, edit_zacaz_kb
+from model.temp_Order import Temp_order
 
 router = Router()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

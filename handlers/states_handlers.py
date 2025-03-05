@@ -1,6 +1,12 @@
-from aiogram import Router
+import datetime
 
+from aiogram import Router, types
+from aiogram.fsm.context import FSMContext
 from dob_func.dob_func import *
+from keyboards.keyboard import support_admin_menu_kb, classes_kb
+from model.User import User
+from model.reqwest import Reqwest
+from states.states import *
 
 router = Router()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
