@@ -98,51 +98,45 @@ class School:
         self.driver_manager.click_element(class_element)
 
     def select_predmets(self) -> None:
+        # 1. Проверка наличия iframe
+        frames = self.driver_manager.wait_for_elements(By.TAG_NAME, "iframe", timeout=5)
+        print(f"Найдено iframe: {len(frames)}")
+        if frames:
+            self.driver_manager.driver.switch_to.frame(frames[0])
+
+        # 2. Поиск элемента с диагностикой
+        button_xpath = '//div[@class="left-side"]//div[contains(@class, "marks-menu")]'
+        print("Пытаюсь найти элемент...")
+
+        button_element = WebDriverWait(self.driver_manager.driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, button_xpath)))
+
+        print("Элемент найден. Свойства:")
+        print(f"Видимый: {button_element.is_displayed()}")
+        print(f"Кликабельный: {button_element.is_enabled()}")
+        print(f"Текст элемента: {button_element.text}")
+        print(f"Классы элемента: {button_element.get_attribute('class')}")
+
+        # 3. Скролл и подсветка
+        self.driver_manager.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});"
+            "arguments[0].style.border = '3px solid red';",
+            button_element)
+
+        # 4. Попытка клика через разные методы
         try:
-            # 1. Проверка наличия iframe
-            frames = self.driver_manager.wait_for_elements(By.TAG_NAME, "iframe", timeout=5)
-            print(f"Найдено iframe: {len(frames)}")
-            if frames:
-                self.driver_manager.driver.switch_to.frame(frames[0])
-
-            # 2. Поиск элемента с диагностикой
-            button_xpath = '//div[@class="left-side"]//div[contains(@class, "marks-menu")]'
-            print("Пытаюсь найти элемент...")
-
-            button_element = WebDriverWait(self.driver_manager.driver, 10).until(
-                EC.visibility_of_element_located((By.XPATH, button_xpath)))
-
-            print("Элемент найден. Свойства:")
-            print(f"Видимый: {button_element.is_displayed()}")
-            print(f"Кликабельный: {button_element.is_enabled()}")
-            print(f"Текст элемента: {button_element.text}")
-            print(f"Классы элемента: {button_element.get_attribute('class')}")
-
-            # 3. Скролл и подсветка
-            self.driver_manager.execute_script(
-                "arguments[0].scrollIntoView({block: 'center'});"
-                "arguments[0].style.border = '3px solid red';",
-                button_element)
-
-            # 4. Попытка клика через разные методы
-            try:
-                print("Попытка клика через Selenium...")
-                button_element.click()
-            except Exception as e:
-                print(f"Ошибка прямого клика: {e}")
-                print("Пробую клик через JavaScript...")
-                self.driver_manager.execute_script("arguments[0].click();", button_element)
-
-            # 5. Проверка результата
-            print("Проверяем обновление интерфейса...")
-            WebDriverWait(self.driver_manager.driver, 5).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "marks-container")))
-
+            print("Попытка клика через Selenium...")
+            button_element.click()
         except Exception as e:
-            print("Текущий HTML страницы:")
-            print(self.driver_manager.driver.page_source[:2000])  # Первые 2000 символов
-            self.driver_manager.driver.save_screenshot("error.png")
-            raise
+            print(f"Ошибка прямого клика: {e}")
+            print("Пробую клик через JavaScript...")
+            self.driver_manager.execute_script("arguments[0].click();", button_element)
+
+        # 5. Проверка результата
+        print("Проверяем обновление интерфейса...")
+        WebDriverWait(self.driver_manager.driver, 5).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "marks-container")))
+
 
     def get_grades_data(self) -> dict:
         """Извлечение оценок из таблицы на странице.
@@ -192,9 +186,8 @@ class School:
             self.select_class(class_name)
             self.select_subject(subject)
             self.select_user_class(user_class)
-            self.select_predmets()
             # Ожидание загрузки данных (можно заменить на явное ожидание)
-            time.sleep(500)
+            time.sleep(5000)
 
         except Exception as e:
             print(f"Ошибка при получении оценок: {e}")
@@ -210,5 +203,5 @@ if __name__ == "__main__":
     school_password = "070871"
 
     school_instance = School(school_login, school_password)
-
     grades = school_instance.fetch_grades("Русский язык", '8 а')
+

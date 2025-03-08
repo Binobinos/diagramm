@@ -41,5 +41,4 @@ async def help_3(callback: types.CallbackQuery):
 async def help_4(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} открыл справку")
     await help_4_menu(callback.from_user.id)
-    await send_admins("тест отправки всем админам", help_menu_kb())
     await callback.answer()

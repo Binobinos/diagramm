@@ -1,12 +1,14 @@
+import logging
 from uuid import uuid4
 
 from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 
+import config
+from DB.db import DB
 from dob_func.price import calculating_the_price
 from keyboards.keyboard import help_menu_kb, support_menu_kb, parallels_kb, orders_admin_menu_kb, korzin_null, \
     order_kb_show, predmet_menu_kb, main_menu_kb, orders_menu_kb
-from main import *
 from model.User import User
 from model.order import Orders
 from model.temp_Order import Temp_order
