@@ -20,16 +20,17 @@ def main_kb(builder, ad=2, text="⬅️ Назад", callback_data="main_menu"):
 def main_menu_kb(acc: User):
     builder = InlineKeyboardBuilder()
     builder.button(text="📙 Предметы", callback_data="my_predmet")
-    builder.button(text="📂 Мой аккаунт", callback_data="my_accounts")
+    builder.button(text="🙍‍♂️ Мой аккаунт", callback_data="my_accounts")
     builder.button(text="ℹ️ Помощь", callback_data="help")
     builder.button(text="🛠 Тех-поддержка", callback_data="Technical_support")
     builder.button(text="🛒 Корзина", callback_data="order")
+    builder.button(text="📚 ДЗ", callback_data="homework")
     builder.adjust(2)
     if acc.user_level == "admin":
-        builder.button(text="Заказы", callback_data="Orders_0")
-        builder.button(text="🛠 Обращения в Тех-поддержка", callback_data="_")
-        builder.button(text="🛠 Настройки бота", callback_data="_")
-        builder.button(text="🛠 Статистика", callback_data="_")
+        builder.button(text="💼 Заказы", callback_data="Orders_0")
+        builder.button(text="❓ Обращения в Тех-поддержку 💭", callback_data="_")
+        builder.button(text="⚙️ Настройки бота", callback_data="_")
+        builder.button(text="📊 Статистика", callback_data="_")
         builder.adjust(1)
     return builder.as_markup()
 
@@ -55,7 +56,7 @@ def orders_menu_kb(orders: List[Orders], start: int = 0):
 
 def help_menu_kb():
     builder = InlineKeyboardBuilder()
-    builder.button(text="📙 Оплата", callback_data="help_1")
+    builder.button(text="💲 Оплата", callback_data="help_1")
     builder.button(text="📂 Цена-образование", callback_data="help_2")
     builder.button(text="🔑 Безопасность", callback_data="help_3")
     builder.button(text="🛠 Гарантии", callback_data="help_4")

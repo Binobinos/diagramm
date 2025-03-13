@@ -17,7 +17,7 @@ async def show_account(callback: types.CallbackQuery):
     """
     Отображение информации об аккаунте
     :param callback: Функция Вызова телеграмма
-    :return: None
+    :return: Nots
     """
     user_id = callback.from_user.id
     acc: User = await mongo_db.get_user(user_id)

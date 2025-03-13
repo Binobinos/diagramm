@@ -1,10 +1,11 @@
+import asyncio
 import datetime
-
 from aiogram import Router, F
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from Nots.test import *
 from dob_func.dob_func import *
 from keyboards.keyboard import error_menu_kb
 from model.User import User
@@ -78,3 +79,59 @@ async def send_answer(callback: types.CallbackQuery):
     )
     logging.info(f"пользователь {callback.from_user.username} получмл ответ")
     await callback.answer()
+
+
+@router.callback_query(F.data == "homework")
+async def send_answer(callback: types.CallbackQuery):
+    id_ = int(callback.from_user.id)
+    acc = await mongo_db.get_user(id_)
+    auth = SchoolAuth()
+
+    # Отвечаем сразу и запускаем анимацию
+    await callback.answer("⏳ Начинаю загрузку...")
+    progress_msg = await callback.message.answer("🌑 Загрузка данных...")
+
+    # Создаем флаг для остановки анимации
+    stop_event = asyncio.Event()
+
+    # Задача для анимации
+    async def animate_progress():
+        frames = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"]
+        while not stop_event.is_set():
+            for frame in frames:
+                if stop_event.is_set():
+                    break
+                await progress_msg.edit_text(f"{frame} Идёт загрузка...")
+                await asyncio.sleep(0.3)
+
+    # Запускаем анимацию
+    animation_task = asyncio.create_task(animate_progress())
+
+    try:
+        if auth.login(config.USER_LOGIN, config.USER_PASSWORD):
+            # Запускаем синхронную задачу в потоке
+            result = await asyncio.to_thread(
+                set_homework,
+                f"{acc.parallel} {acc.class_name.lower()}",
+                type="recent",
+                auth=auth
+            )
+
+        # Останавливаем анимацию
+        stop_event.set()
+        await animation_task
+
+        # Удаляем сообщение с прогрессом
+        await progress_msg.delete()
+
+        # Отправляем финальное сообщение
+        await send_or_edit_menu(
+            id_,
+            f"{result}",
+            InlineKeyboardBuilder().button(text="⬅️ В главное меню", callback_data="main_menu").as_markup()
+        )
+
+    except Exception as e:
+        stop_event.set()
+        await progress_msg.edit_text(f"❌ Ошибка: {str(e)}")
+        logging.error(f"Ошибка: {str(e)}")

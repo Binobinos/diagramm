@@ -23,8 +23,8 @@ async def show_my_predmet(callback: types.CallbackQuery):
 async def show_account(callback: types.CallbackQuery):
     """
     Выбор Четверти
-    :param callback: None
-    :return: None
+    :param callback: Nots
+    :return: Nots
     """
     user_id = callback.from_user.id
     predmets = callback.data.split("_")[1]
@@ -68,8 +68,8 @@ async def show_type(callback: types.CallbackQuery):
 async def show_account_(callback: types.CallbackQuery):
     """
     Выбор Четверти
-    :param callback: None
-    :return: None
+    :param callback: Nots
+    :return: Nots
     """
     user_id = callback.from_user.id
     predmets = callback.data.split("_")[1]
