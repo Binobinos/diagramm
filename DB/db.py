@@ -78,3 +78,23 @@ class DB:
 
     async def get_all_orders(self) -> list[Mapping[str, Any] | Any]:
         return await self.db["Orders"].find().to_list(None)
+
+
+    async def insert_Reqwest(self, order: Orders) -> Orders:
+        await self.db["Orders"].insert_one(order.model_dump())
+        return order
+
+    async def delete_Reqwest(self, order: Orders):
+        await self.db["Orders"].delete_one({"id": order.id})
+        return order
+
+    async def update_Reqwest(self, order: Orders) -> Orders:
+        await self.db["Orders"].update_one(
+            {"id": order.id},
+            {"$set": order.model_dump()}
+        )
+
+        return await self.get_order(order.id)
+
+    async def get_all_Reqwest(self) -> list[Mapping[str, Any] | Any]:
+        return await self.db["Orders"].find().to_list(None)

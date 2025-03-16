@@ -6,6 +6,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dob_func.price import calculating_the_price
 from model.User import User
 from model.order import Orders
+from model.reqwest import Reqwest
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
@@ -28,7 +29,7 @@ def main_menu_kb(acc: User):
     builder.adjust(2)
     if acc.user_level == "admin":
         builder.button(text="💼 Заказы", callback_data="Orders_0")
-        builder.button(text="❓ Обращения в Тех-поддержку 💭", callback_data="_")
+        builder.button(text="❓ Обращения в Тех-поддержку 💭", callback_data="Technical_support_0")
         builder.button(text="⚙️ Настройки бота", callback_data="_")
         builder.button(text="📊 Статистика", callback_data="_")
         builder.adjust(1)
@@ -51,6 +52,25 @@ def orders_menu_kb(orders: List[Orders], start: int = 0):
             builder.button(text=f"Заказ {number + 1 + start} - {order.username}",
                            callback_data=f"*order-new_{order.id}")
         builder.button(text=f"<<", callback_data=f"Orders_{start - 6}")
+    return main_kb(builder, ad=1)
+
+
+def Technical_support_menu_kb(Reqwest: List[Reqwest], start: int = 0):
+    builder = InlineKeyboardBuilder()
+    if not start + 6 > len(Reqwest):
+        for number, order in enumerate(Reqwest[start:start + 6]):
+            builder.button(text=f"{order.messages[:32]} - {order.username}",
+                           callback_data=f"*order-new_{order.id}")
+        if not start == 0:
+            builder.button(text=f"<<", callback_data=f"Technical_support_{start - 6}")
+            builder.button(text=f">>", callback_data=f"Technical_support_{start + 6}")
+        else:
+            builder.button(text=f">>", callback_data=f"Technical_support_{start + 6}")
+    else:
+        for number, order in enumerate(Reqwest[start:]):
+            builder.button(text=f"{order.messages[:32]} - {order.username}",
+                           callback_data=f"*order-new_{order.id}")
+        builder.button(text=f"<<", callback_data=f"Technical_support_{start - 6}")
     return main_kb(builder, ad=1)
 
 

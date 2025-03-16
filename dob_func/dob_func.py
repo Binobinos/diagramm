@@ -7,7 +7,7 @@ import config
 from DB.db import DB
 from dob_func.price import calculating_the_price
 from keyboards.keyboard import help_menu_kb, support_menu_kb, parallels_kb, orders_admin_menu_kb, korzin_null, \
-    order_kb_show, predmet_menu_kb, main_menu_kb, orders_menu_kb
+    order_kb_show, predmet_menu_kb, main_menu_kb, orders_menu_kb, Technical_support_menu_kb
 from model.User import User
 from model.order import Orders
 from model.temp_Order import Temp_order
@@ -71,6 +71,19 @@ async def show_orders_menu(user_id: int, start=0):
         f"Активных заказов: {len(orders)}"
     )
     await send_or_edit_menu(user_id, text, orders_menu_kb(orders, start))
+
+
+async def Technical_support_orders_menu(user_id: int, start=0):
+    logging.info(f"админ {user_id} открыл меню заказов")
+    orders = await mongo_db.get_all_orders()
+    orders = list(Orders(**i) for i in orders)[::-1]
+    text = (
+        "🌟 Обращения:\n\n"
+        "Здесь вы можете отвечать на обращения\n"
+        f"Активных Обращений: {len(orders)}"
+    )
+    await send_or_edit_menu(user_id, text, Technical_support_menu_kb(orders, start))
+
 
 
 async def show_order(user_id: int):
