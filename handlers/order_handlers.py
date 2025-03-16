@@ -36,7 +36,7 @@ async def start_create_account(callback: types.CallbackQuery):
 
 @router.callback_query(F.data.startswith("Technical_support_"))
 async def Technical_support_menu(callback: types.CallbackQuery):
-    start = int(callback.data.split("_")[1])
+    start = int(callback.data.split("_")[2])
     logging.info(f"Админ {callback.from_user.username} переходит в заказы c {start}")
     await Technical_support_orders_menu(callback.from_user.id, start)
 

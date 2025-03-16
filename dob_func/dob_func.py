@@ -10,6 +10,7 @@ from keyboards.keyboard import help_menu_kb, support_menu_kb, parallels_kb, orde
     order_kb_show, predmet_menu_kb, main_menu_kb, orders_menu_kb, Technical_support_menu_kb
 from model.User import User
 from model.order import Orders
+from model.reqwest import Reqwest
 from model.temp_Order import Temp_order
 from states.states import Support, Registration
 import logging
@@ -76,7 +77,7 @@ async def show_orders_menu(user_id: int, start=0):
 async def Technical_support_orders_menu(user_id: int, start=0):
     logging.info(f"админ {user_id} открыл меню заказов")
     orders = await mongo_db.get_all_orders()
-    orders = list(Orders(**i) for i in orders)[::-1]
+    orders = list(Reqwest(**i) for i in orders)[::-1]
     text = (
         "🌟 Обращения:\n\n"
         "Здесь вы можете отвечать на обращения\n"

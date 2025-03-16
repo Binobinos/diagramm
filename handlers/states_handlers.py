@@ -48,6 +48,7 @@ async def edit_fio(message: types.Message, state: FSMContext):
     logging.info(f"пользователь {message.from_user.username} отправил сообщение тех поддержке:\n{messages}")
     request = Reqwest(id_=str(uuid4())[:8], user_id=user_id, username=message.from_user.username, messages=messages,
                       type="Сообщение")
+    await mongo_db.insert_reqwest(request)
     await message.answer("✅ Сообщение успешно отправленною")
     await state.clear()
     await send_admins(f"{datetime.date.today()} - {messages}", support_admin_menu_kb(user_id), acc)
