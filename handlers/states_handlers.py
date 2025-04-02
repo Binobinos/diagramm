@@ -1,7 +1,7 @@
 import datetime
 
 from aiogram import Router, types
-from aiogram.fsm.context import FSMContext
+
 from dob_func.dob_func import *
 from keyboards.keyboard import support_admin_menu_kb, classes_kb
 from model.User import User
@@ -10,12 +10,11 @@ from states.states import *
 
 router = Router()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-type_items = {"Работа на уроке": 1, "Самостоятельная работа": 1.04, "Проверочная работа": 1.05,
-              "Контрольная работа": 1.06}
 
 
 @router.message(EditAccount.edit_fio)
 async def edit_fio(message: types.Message, state: FSMContext):
+    """ Изменяет ФИО пользователя """
     user_id = message.from_user.id
     fio = message.text.strip().lower()  # Убираем лишние пробелы по краям
     parts = fio.split()
@@ -26,7 +25,7 @@ async def edit_fio(message: types.Message, state: FSMContext):
 
     surname, name, patronymic = parts
 
-    if not len(surname) >= 2 and not len(name) >= 2 and not len(patronymic) >= 2:
+    if len(surname) >= 2 and len(name) >= 2 and len(patronymic) >= 2:
         await message.answer("ФИО должно содержать только буквы кириллицы и дефисы.")
         logging.info(f"пользователь {message.from_user.username} ввёл неправильно ФИО")
         return
@@ -41,7 +40,8 @@ async def edit_fio(message: types.Message, state: FSMContext):
 
 
 @router.message(Support.message)
-async def edit_fio(message: types.Message, state: FSMContext):
+async def technical_support_message(message: types.Message, state: FSMContext):
+    """ Отправляет сообщение тех-поддержке """
     user_id = message.from_user.id
     messages = message.text.strip()
     acc = await mongo_db.get_user(user_id)
@@ -51,11 +51,12 @@ async def edit_fio(message: types.Message, state: FSMContext):
     await mongo_db.insert_reqwest(request)
     await message.answer("✅ Сообщение успешно отправленною")
     await state.clear()
-    await send_admins(f"{datetime.date.today()} - {messages}", support_admin_menu_kb(user_id), acc)
+    await send_admins(router, f"{datetime.date.today()} - {messages}", support_admin_menu_kb(user_id), acc)
 
 
 @router.message(Registration.enter_fio)
-async def enter_fio(message: types.Message, state: FSMContext):
+async def account_create(message: types.Message, state: FSMContext):
+    """ Регистрирует нового пользователя """
     user_id = message.from_user.id
     fio = message.text.strip().lower()
 
@@ -84,14 +85,11 @@ async def enter_fio(message: types.Message, state: FSMContext):
         await state.clear()
         await message.answer("✅ Аккаунт успешно создан!")
         logging.info(f"пользователь {message.from_user.username} создал аккаунт\n {acc.model_dump()}")
-        await show_main_menu(user_id)
+        await show_main_menu(router, user_id)
     else:
         await message.answer("❌Такой аккаунт уже есть")
         logging.info(f"пользователь {message.from_user.username} пытается войти в аккаунт \n{acc_.model_dump()}")
         await state.set_state(EditAccount.edit_class)
         data = await state.get_data()
-        await send_or_edit_menu(
-            user_id,
-            "Выберите новый класс:",
-            classes_kb(parallels=parallels, parallel=data['parallel'])
-        )
+        await send_or_edit_menu(router, user_id, "Выберите новый класс:",
+                                classes_kb(parallels=parallels, parallel=data['parallel']))
