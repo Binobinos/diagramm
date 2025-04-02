@@ -17,7 +17,7 @@
 ---
 
 ## Стек
-- Python 3.8+
+- Python 3.9+
 - aiogramm
 - mongo DB motor
 - Pydantic
@@ -68,6 +68,6 @@ MIT License. Подробнее в файле [LICENSE](LICENSE).
 ---
 
 ## 📮 Контакты
-- Автор: [Binobinos](https://github.com/Binobino)
+- Автор: [Binobinos](https://github.com/Binobinos)
 - Поддержка: [Telegram](https://t.me/binobinos) | [Email](mailto:binobinos.dev@gmail.com)
 ```
