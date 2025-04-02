@@ -1,6 +1,8 @@
 # .gitignore
 .env
-*.pyc
-__pycache__
-Nots\
-venv\
+__pycache__/
+*.py[cod]
+venv/
+*.log
+*.sqlite
+/Nots/
