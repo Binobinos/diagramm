@@ -60,7 +60,7 @@ def Technical_support_menu_kb(Reqwest: List[Reqwest], start: int = 0):
     if not start + 6 > len(Reqwest):
         for number, order in enumerate(Reqwest[start:start + 6]):
             builder.button(text=f"{order.messages[:32]} - {order.username}",
-                           callback_data=f"*order-new_{order.id}")
+                           callback_data=f"*order-new_{order.id_}")
         if not start == 0:
             builder.button(text=f"<<", callback_data=f"Technical_support_{start - 6}")
             builder.button(text=f">>", callback_data=f"Technical_support_{start + 6}")
@@ -69,7 +69,7 @@ def Technical_support_menu_kb(Reqwest: List[Reqwest], start: int = 0):
     else:
         for number, order in enumerate(Reqwest[start:]):
             builder.button(text=f"{order.messages[:32]} - {order.username}",
-                           callback_data=f"*order-new_{order.id}")
+                           callback_data=f"*Technical-support_{order.id_}")
         builder.button(text=f"<<", callback_data=f"Technical_support_{start - 6}")
     return main_kb(builder, ad=1)
 

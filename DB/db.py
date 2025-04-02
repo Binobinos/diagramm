@@ -4,6 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from model.User import User
 from model.order import Orders
+from model.reqwest import Reqwest
 
 
 class DB:
@@ -80,21 +81,28 @@ class DB:
         return await self.db["Orders"].find().to_list(None)
 
 
-    async def insert_reqwest(self, order: Orders) -> Orders:
+    async def insert_reqwest(self, order: Reqwest) -> Reqwest:
         await self.db["reqwest"].insert_one(order.model_dump())
         return order
 
-    async def delete_reqwest(self, order: Orders):
+    async def delete_reqwest(self, order: Reqwest):
         await self.db["reqwest"].delete_one({"id": order.id})
         return order
 
-    async def update_reqwest(self, order: Orders) -> Orders:
+    async def update_reqwest(self, order: Reqwest) -> Reqwest:
         await self.db["reqwest"].update_one(
             {"id": order.id},
             {"$set": order.model_dump()}
         )
 
-        return await self.get_order(order.id)
+        return await self.get_reqwest(order.id)
 
     async def get_all_reqwest(self) -> list[Mapping[str, Any] | Any]:
         return await self.db["reqwest"].find().to_list(None)
+
+    async def get_reqwest(self, order_id: str) -> Optional[Reqwest]:
+        orders_data = await self.db["reqwest"].find_one({"id_": order_id})
+        if orders_data:
+            return Reqwest(**orders_data)
+        else:
+            return None

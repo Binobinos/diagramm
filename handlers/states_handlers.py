@@ -37,7 +37,7 @@ async def edit_fio(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer("✅ ФИО успешно изменено!")
     logging.info(f"пользователь {message.from_user.username} изменил ФИО на {fio}")
-    await show_main_menu(user_id)
+    await show_main_menu(router, user_id)
 
 
 @router.message(Support.message)

@@ -40,6 +40,17 @@ async def Technical_support_menu(callback: types.CallbackQuery):
     logging.info(f"Админ {callback.from_user.username} переходит в заказы c {start}")
     await Technical_support_orders_menu(callback.from_user.id, start)
 
+@router.callback_query(F.data.startswith("*Technical-support_"))
+async def show_admin_order(callback: types.CallbackQuery):
+    logging.info(f"пользователь {callback.from_user.username} открыл корзиину")
+    print(callback.data)
+    ids = callback.data.split('_')[1]
+    order = await mongo_db.get_reqwest(ids)
+    print(order)
+    await show_client_reqwest(order, callback.from_user.id)
+    await callback.answer()
+
+
 
 @router.callback_query(F.data == "add_corzin")
 async def back_to_main(callback: types.CallbackQuery):
