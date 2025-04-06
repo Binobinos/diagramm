@@ -8,7 +8,7 @@ from db.db import DB
 
 BOT_TOKEN = config("BOT_TOKEN")
 MONGO_DB_URL = config("MONGO_DB_URL")
-LOGGING_LEVEL = logging.DEBUG
+LOGGING_LEVEL = logging.INFO
 parallels = {
     "5": [["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", 'У'],
           ['Биология', "География", "ИЗО", "Английский язык", "Информатика", "Литература", "Математика", "Музыка",

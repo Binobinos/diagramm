@@ -55,9 +55,16 @@ async def back_to_main(callback: types.CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "Technical_support")
 async def support(callback: types.CallbackQuery, state: FSMContext):
-    logging.info(f"пользователь {callback.from_user.username} нажал на тех-поддержку")
-    await start_help(callback.from_user.id, state)
-    await callback.answer()
+    user_id = callback.from_user.id
+    user_name = callback.from_user.username
+    acc: User = await mongo_db.get_user(user_id)
+    if not acc.ban:
+        logging.info(f"пользователь {user_name} нажал на тех-поддержку")
+        await start_help(user_id, state)
+        await callback.answer()
+    else:
+        logging.info(f"забаненный пользователь {user_name} нажал start")
+        await callback.answer("👋 Вы забанены")
 
 
 @router.callback_query(F.data == "_")

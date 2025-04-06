@@ -32,6 +32,7 @@ def main_menu_kb(acc: User):
         builder.button(text="❓ Обращения в Тех-поддержку 💭", callback_data="Technical_support_0")
         builder.button(text="⚙️ Настройки бота", callback_data="_")
         builder.button(text="📊 Статистика", callback_data="_")
+        builder.button(text="⚙️ Изменить текст меню", callback_data="_")
         builder.adjust(1)
     return builder.as_markup()
 
@@ -52,6 +53,7 @@ def orders_menu_kb(orders: List[Orders], start: int = 0):
             builder.button(text=f"Заказ {number + 1 + start} - {order.username}",
                            callback_data=f"*order-new_{order.id}")
         builder.button(text=f"<<", callback_data=f"Orders_{start - 6}")
+    builder.button(text="⚙️ Изменить текст меню", callback_data="_")
     return main_kb(builder, ad=1)
 
 
@@ -71,6 +73,7 @@ def technical_support_menu_kb(reqwest: List[Reqwest], start: int = 0):
             builder.button(text=f"{order.messages[:32]} - {order.username}",
                            callback_data=f"*Technical-support_{order.id_}")
         builder.button(text=f"<<", callback_data=f"Technical_support_{start - 6}")
+    builder.button(text="⚙️ Изменить текст меню", callback_data="_")
     return main_kb(builder, ad=1)
 
 
@@ -97,6 +100,7 @@ def orders_admin_menu_kb():
     builder.button(text="Выполнил✅", callback_data="_")
     builder.button(text="Не выполнил ❌", callback_data="_")
     builder.button(text="", callback_data="_")
+    builder.button(text="⚙️ Изменить текст меню", callback_data="_")
     return main_kb(builder, ad=1)
 
 
@@ -108,10 +112,6 @@ def error_menu_kb():
 def support_admin_menu_kb(id_):
     builder = InlineKeyboardBuilder()
     builder.button(text="📙 популярный ответ 1", callback_data=f"answer_{id_}_123")
-    # builder.button(text="📙 популярный ответ 1", callback_data=f"answer_{id_}_{text_1}")
-    # builder.button(text="📂 популярный ответ 2", callback_data=f"answer_{id_}_{text_2}")
-    # builder.button(text="🔑 популярный ответ 3", callback_data=f"answer_{id_}_{text_3}")
-    # builder.button(text="🛠 популярный ответ 4", callback_data=f"answer_{id_}_{text_4}")
     return main_kb(builder, ad=1)
 
 
