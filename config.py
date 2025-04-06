@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from decouple import config
 
-from DB.db import DB
+from db.db import DB
 
 BOT_TOKEN = config("BOT_TOKEN")
 MONGO_DB_URL = config("MONGO_DB_URL")

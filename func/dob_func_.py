@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 
 import config
 import func.prices as pc
-from DB.db import DB
+from db.db import DB
 from keyboards.keyboard import (help_menu_kb,
                                 support_menu_kb,
                                 parallels_kb,
