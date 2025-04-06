@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from decouple import config
@@ -6,6 +8,7 @@ from DB.db import DB
 
 BOT_TOKEN = config("BOT_TOKEN")
 MONGO_DB_URL = config("MONGO_DB_URL")
+LOGGING_LEVEL = logging.DEBUG
 parallels = {
     "5": [["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", 'У'],
           ['Биология', "География", "ИЗО", "Английский язык", "Информатика", "Литература", "Математика", "Музыка",

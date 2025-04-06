@@ -1,13 +1,13 @@
 from aiogram import Router, F
 from aiogram import types
 
-from dob_func.dob_func_ import *
-from dob_func.price import calculating_the_price
+from func.dob_func_ import *
+from func.prices import calculating_the_price
 from keyboards.keyboard import accounts_cht_kb, accounts_type_kb, accounts_tip_o_kb, edit_zacaz_kb
 from model.temp_order import TempOrder
 
 router = Router()
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 type_items = {"Работа на уроке": 1, "Самостоятельная работа": 1.04, "Проверочная работа": 1.05,
               "Контрольная работа": 1.06}
 
@@ -15,7 +15,7 @@ type_items = {"Работа на уроке": 1, "Самостоятельная
 @router.callback_query(F.data == "my_predmet")
 async def show_my_object(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} открыл меню выбора предмета")
-    await show_predmets_menu(callback.from_user.id)
+    await show_object_menu(callback.from_user.id)
     await callback.answer()
 
 
@@ -27,15 +27,15 @@ async def show_account(callback: types.CallbackQuery):
     :return: Nots
     """
     user_id = callback.from_user.id
-    predmets = callback.data.split("_")[1]
+    object = callback.data.split("_")[1]
     acc = await mongo_db.get_user(user_id)
-    acc.temp_order["предмет"] = predmets
+    acc.temp_order["предмет"] = object
     await mongo_db.update_user(acc)
     text = (
-        f"Вы выбрали {predmets}\n"
+        f"Вы выбрали {object}\n"
         "Выберите Четверть:"
     )
-    logging.info(f"пользователь {callback.from_user.username} выбрал предмет {predmets}")
+    logging.info(f"пользователь {callback.from_user.username} выбрал предмет {object}")
     await send_or_edit_menu(user_id, text, accounts_cht_kb())
     await callback.answer()
 
@@ -43,15 +43,15 @@ async def show_account(callback: types.CallbackQuery):
 @router.callback_query(F.data.startswith("CHT_"))
 async def type_assessment(callback: types.CallbackQuery):
     user_id = callback.from_user.id
-    predmets = callback.data.split("_")[1]
+    quarter = callback.data.split("_")[1]
     acc = await mongo_db.get_user(user_id)
-    acc.temp_order["Четверть"] = predmets
+    acc.temp_order["Четверть"] = quarter
     await mongo_db.update_user(acc)
     text = (
-        f"Вы выбрали {predmets}-ую Четверть"
-        "\nВыберите Тип Оценки:"
+        f"Вы выбрали {quarter}-ую Четверть\n"
+        "Выберите Тип Оценки:"
     )
-    logging.info(f"пользователь {callback.from_user.username} выбрал четверть {predmets}")
+    logging.info(f"пользователь {callback.from_user.username} выбрал четверть {quarter}")
     await send_or_edit_menu(user_id, text, accounts_type_kb(type_items))
     await callback.answer()
 
@@ -93,8 +93,11 @@ async def select_class(callback: types.CallbackQuery):
     acc.order.products.append(temp_order)
     acc.temp_order = {}
     text = (
-        f"🔍 Информация об Заказе:\n\nФИО - {acc.full_name}\nКласс - {acc.parallel} {acc.class_name}\n{show_tofar(acc)}"
-        "\nВсё верно?"
+        f"🔍 Информация об Заказе:\n\n"
+        f"ФИО - {acc.full_name}\n"
+        f"Класс - {acc.parallel} {acc.class_name}\n"
+        f"{show_product(acc)}\n"
+        "Всё верно?"
     )
     logging.info(f"пользователь {callback.from_user.username} подтверждает товар")
     await send_or_edit_menu(user_id, text, edit_zacaz_kb())

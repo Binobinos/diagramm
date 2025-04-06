@@ -1,12 +1,11 @@
 from aiogram import Router, F
 from aiogram import types
 
-from dob_func.dob_func_ import help_menu, help_1_menu, help_2_menu, help_3_menu, help_4_menu, send_admins
-from keyboards.keyboard import help_menu_kb
+from func.dob_func_ import help_menu, help_1_menu, help_2_menu, help_3_menu, help_4_menu
 from main import *
 
 router = Router()
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
 
 @router.callback_query(F.data == "help")

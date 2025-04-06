@@ -7,12 +7,12 @@ from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from Nots.test import *
-from dob_func.dob_func_ import *
+from func.dob_func_ import *
 from keyboards.keyboard import error_menu_kb
 from model.user import User
 
 router = Router()
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 type_items = {"Работа на уроке": 1, "Самостоятельная работа": 1.04, "Проверочная работа": 1.05,
               "Контрольная работа": 1.06}
 

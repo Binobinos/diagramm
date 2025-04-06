@@ -2,14 +2,14 @@ import datetime
 
 from aiogram import Router, types
 
-from dob_func.dob_func_ import *
+from func.dob_func_ import *
 from keyboards.keyboard import support_admin_menu_kb, classes_kb
 from model.user import User
 from model.reqwest import Reqwest
 from states.states import *
 
 router = Router()
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
 
 @router.message(EditAccount.edit_fio)

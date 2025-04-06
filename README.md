@@ -1,7 +1,7 @@
 # 📌 diagramm
 
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
-[![Aiogram](https://img.shields.io/badge/Aiogram-2.x-green.svg)](https://docs.aiogram.dev/)
+[![Aiogram](https://img.shields.io/badge/Aiogram-3.x-green.svg)](https://docs.aiogram.dev/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 🔥 **Краткое описание**: Бот для магазина в телеграмме
@@ -19,9 +19,8 @@
 ## Стек
 - Python 3.9+
 - aiogramm
-- mongo DB motor
+- motor
 - Pydantic
-- aiohttps
 - python-decouple
 
 ---
@@ -70,4 +69,3 @@ MIT License. Подробнее в файле [LICENSE](LICENSE).
 ## 📮 Контакты
 - Автор: [Binobinos](https://github.com/Binobinos)
 - Поддержка: [Telegram](https://t.me/binobinos) | [Email](mailto:binobinos.dev@gmail.com)
-```

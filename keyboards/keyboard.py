@@ -3,11 +3,12 @@ from typing import List
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from dob_func.price import calculating_the_price
+import config
+from func.prices import calculating_the_price
 from model.user import User
 from model.order import Orders
 from model.reqwest import Reqwest
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
 
 def main_kb(builder, ad=2, text="⬅️ Назад", callback_data="main_menu"):

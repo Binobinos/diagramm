@@ -2,14 +2,14 @@ from aiogram import Router, F
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from dob_func.dob_func_ import *
+from func.dob_func_ import *
 from keyboards.keyboard import classes_kb, parallels_kb_edit, parallels_kb, edit_account_kb
 from main import *
 from model.user import User
 from states.states import Registration, EditAccount
 
 router = Router()
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
 
 @router.callback_query(F.data == "my_accounts")

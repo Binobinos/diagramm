@@ -1,12 +1,12 @@
 from aiogram import Router, F
 from aiogram import types
 
-from dob_func.dob_func_ import *
+from func.dob_func_ import *
 from keyboards.keyboard import order_admin_menu_kb
 from model.order import Orders
 
 router = Router()
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
 
 @router.callback_query(F.data == "order")
@@ -40,7 +40,7 @@ async def technical_support_menu(callback: types.CallbackQuery):
     """ Открывает меню заказов администратору """
     start = int(callback.data.split("_")[2])
     logging.info(f"Админ {callback.from_user.username} переходит в заказы c {start}")
-    await Technical_support_orders_menu(callback.from_user.id, start)
+    await technical_support_orders_menu(callback.from_user.id, start)
 
 
 @router.callback_query(F.data.startswith("*Technical-support_"))
@@ -61,7 +61,7 @@ async def add_basket_main(callback: types.CallbackQuery):
     acc = await create_temp_order(callback.from_user.id)
     logging.info(
         f"пользователь {callback.from_user.username} Добавляет в корзину товар \n"
-        f"{show_tofar(acc)} \n и переходит в главное меню")
+        f"{show_product(acc)} \n и переходит в главное меню")
     await show_main_menu(callback.from_user.id)
     await callback.answer()
 
@@ -72,7 +72,7 @@ async def add_basket_order(callback: types.CallbackQuery):
     acc = await create_temp_order(callback.from_user.id)
     logging.info(
         f"пользователь {callback.from_user.username} Добавляет в корзину товар \n"
-        f"{show_tofar(acc)} \n и переходит в корзину")
+        f"{show_product(acc)} \n и переходит в корзину")
     await show_my_order(callback)
 
 
@@ -91,5 +91,5 @@ async def add_orders(callback: types.CallbackQuery):
     await send_admins(f"🎉 Вам пришёл заказ!", order_admin_menu_kb(), acc)
     logging.info(
         f"пользователь {callback.from_user.username} оплачивает товар \n"
-        f"{show_tofar(acc)}")
+        f"{show_product(acc)}")
     await show_main_menu(callback.from_user.id)
