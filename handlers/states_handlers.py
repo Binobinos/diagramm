@@ -2,7 +2,7 @@ import datetime
 
 from aiogram import Router, types
 
-from dob_func.dob_func import *
+from dob_func.dob_func_ import *
 from keyboards.keyboard import support_admin_menu_kb, classes_kb
 from model.User import User
 from model.reqwest import Reqwest

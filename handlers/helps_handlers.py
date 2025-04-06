@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram import types
 
-from dob_func.dob_func import help_menu, help_1_menu, help_2_menu, help_3_menu, help_4_menu, send_admins
+from dob_func.dob_func_ import help_menu, help_1_menu, help_2_menu, help_3_menu, help_4_menu, send_admins
 from keyboards.keyboard import help_menu_kb
 from main import *
 

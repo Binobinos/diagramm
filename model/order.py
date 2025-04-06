@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel
 
-from model.temp_Order import Temp_order
+from model.temp_Order import TempOrder
 
 
 class Orders(BaseModel):
@@ -15,4 +15,4 @@ class Orders(BaseModel):
     class_name: Optional[str] = None
     price: Union[float] = 0.00
     discount: Union[float] = 1.00
-    products: List[Temp_order] = []
+    products: List[TempOrder] = []

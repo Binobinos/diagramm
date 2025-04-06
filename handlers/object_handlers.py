@@ -1,10 +1,10 @@
 from aiogram import Router, F
 from aiogram import types
 
-from dob_func.dob_func import *
+from dob_func.dob_func_ import *
 from dob_func.price import calculating_the_price
 from keyboards.keyboard import accounts_cht_kb, accounts_type_kb, accounts_tip_o_kb, edit_zacaz_kb
-from model.temp_Order import Temp_order
+from model.temp_Order import TempOrder
 
 router = Router()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -13,7 +13,7 @@ type_items = {"Работа на уроке": 1, "Самостоятельная
 
 
 @router.callback_query(F.data == "my_predmet")
-async def show_my_predmet(callback: types.CallbackQuery):
+async def show_my_object(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} открыл меню выбора предмета")
     await show_predmets_menu(callback.from_user.id)
     await callback.answer()
@@ -36,16 +36,12 @@ async def show_account(callback: types.CallbackQuery):
         "Выберите Четверть:"
     )
     logging.info(f"пользователь {callback.from_user.username} выбрал предмет {predmets}")
-    await send_or_edit_menu(
-        user_id,
-        text,
-        accounts_cht_kb()
-    )
+    await send_or_edit_menu(user_id, text, accounts_cht_kb())
     await callback.answer()
 
 
 @router.callback_query(F.data.startswith("CHT_"))
-async def show_type(callback: types.CallbackQuery):
+async def type_assessment(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     predmets = callback.data.split("_")[1]
     acc = await mongo_db.get_user(user_id)
@@ -56,16 +52,12 @@ async def show_type(callback: types.CallbackQuery):
         "\nВыберите Тип Оценки:"
     )
     logging.info(f"пользователь {callback.from_user.username} выбрал четверть {predmets}")
-    await send_or_edit_menu(
-        user_id,
-        text,
-        accounts_type_kb(type_items)
-    )
+    await send_or_edit_menu(user_id, text, accounts_type_kb(type_items))
     await callback.answer()
 
 
 @router.callback_query(F.data.startswith("tip_"))
-async def show_account_(callback: types.CallbackQuery):
+async def choosing_evaluations(callback: types.CallbackQuery):
     """
     Выбор Четверти
     :param callback: Nots
@@ -81,11 +73,7 @@ async def show_account_(callback: types.CallbackQuery):
         "Выберите Оценку:"
     )
     logging.info(f"пользователь {callback.from_user.username} выбрал тип оценки {predmets}")
-    await send_or_edit_menu(
-        user_id,
-        text,
-        accounts_tip_o_kb(acc)
-    )
+    await send_or_edit_menu(user_id, text, accounts_tip_o_kb(acc))
     await callback.answer()
 
 
@@ -98,8 +86,8 @@ async def select_class(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} выбрал оценку {predmets}")
     await mongo_db.update_user(acc)
     acc = await mongo_db.get_user(user_id)
-    temp_order = Temp_order(id=str(uuid4()), object=acc.temp_order["предмет"], quarter=acc.temp_order["Четверть"],
-                            type=acc.temp_order["Тип оценки"], estimation=acc.temp_order["Оценка"], price=int(
+    temp_order = TempOrder(id=str(uuid4()), object=acc.temp_order["предмет"], quarter=acc.temp_order["Четверть"],
+                           type=acc.temp_order["Тип оценки"], estimation=acc.temp_order["Оценка"], price=int(
             calculating_the_price({acc.temp_order["Тип оценки"]: {"1 Оценка": 0, "2 Оценка": acc.temp_order["Оценка"],
                                                                   "предмет": acc.temp_order["предмет"]}})))
     acc.order.products.append(temp_order)
@@ -109,9 +97,5 @@ async def select_class(callback: types.CallbackQuery):
         "\nВсё верно?"
     )
     logging.info(f"пользователь {callback.from_user.username} подтверждает товар")
-    await send_or_edit_menu(
-        user_id,
-        text,
-        edit_zacaz_kb()
-    )
+    await send_or_edit_menu(user_id, text, edit_zacaz_kb())
     await callback.answer()

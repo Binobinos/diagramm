@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from dob_func.dob_func import *
+from dob_func.dob_func_ import *
 from keyboards.keyboard import classes_kb, parallels_kb_edit, parallels_kb, edit_account_kb
 from main import *
 from model.User import User
@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 
 
 @router.callback_query(F.data == "my_accounts")
-async def show_account(callback: types.CallbackQuery, router: Router):
+async def show_account(callback: types.CallbackQuery):
     """
     Отображение информации об аккаунте
     :param callback: Функция Вызова телеграмма
@@ -28,7 +28,7 @@ async def show_account(callback: types.CallbackQuery, router: Router):
         "Выберите действие:"
     )
 
-    await send_or_edit_menu(router,
+    await send_or_edit_menu(
         user_id,
         text,
         edit_account_kb()
@@ -62,10 +62,10 @@ async def cancel_registration(callback: types.CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "back_to_parallels")
-async def back_to_parallels(callback: types.CallbackQuery, state: FSMContext,router:Router):
-    logging.info(f"пользователь {callback.from_user.username} Вернулся к паралелям")
+async def back_to_parallels(callback: types.CallbackQuery, state: FSMContext):
+    logging.info(f"пользователь {callback.from_user.username} Вернулся к параллелям")
     await state.set_state(Registration.select_parallel)
-    await send_or_edit_menu(router,
+    await send_or_edit_menu(
         callback.from_user.id,
         "Выберите параллель:",
         parallels_kb(parallels)
@@ -74,7 +74,7 @@ async def back_to_parallels(callback: types.CallbackQuery, state: FSMContext,rou
 
 
 @router.callback_query(F.data.startswith("paralleledit_"))
-async def edit_parallel(callback: types.CallbackQuery, state: FSMContext,router:Router):
+async def edit_parallel(callback: types.CallbackQuery, state: FSMContext):
     parallel = callback.data.split("_")[1]
     account = await mongo_db.get_user(callback.from_user.id)
     account.parallel = parallel
@@ -86,22 +86,22 @@ async def edit_parallel(callback: types.CallbackQuery, state: FSMContext,router:
 
 
 @router.callback_query(F.data.startswith("edit_"))
-async def start_edit_account(callback: types.CallbackQuery, state: FSMContext,router:Router):
+async def start_edit_account(callback: types.CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
     action = callback.data
     logging.info(f"пользователь {callback.from_user.username} изменяет аккаунт")
     if action == "edit_fio":
         logging.info(f"пользователь {callback.from_user.username} изменяет ФИО")
         await state.set_state(EditAccount.edit_fio)
-        await send_or_edit_menu(router,
+        await send_or_edit_menu(
             user_id,
             "Введите новое ФИО:",
             InlineKeyboardBuilder().button(text="⬅️ Назад", callback_data="main_menu").as_markup()
         )
     elif action == "edit_parallel":
-        logging.info(f"пользователь {callback.from_user.username} изменяет паралель")
+        logging.info(f"пользователь {callback.from_user.username} изменяет параллель")
         await state.set_state(EditAccount.edit_parallel)
-        await send_or_edit_menu(router,
+        await send_or_edit_menu(
             user_id,
             "Выберите новую параллель:",
             parallels_kb_edit(parallels)

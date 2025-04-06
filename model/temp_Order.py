@@ -1,8 +1,10 @@
-from uuid import uuid4, UUID
-from pydantic import BaseModel
 from typing import Optional
+from uuid import uuid4
 
-class Temp_order(BaseModel):
+from pydantic import BaseModel
+
+
+class TempOrder(BaseModel):
     id: str = str(uuid4())
     object: str
     quarter: str

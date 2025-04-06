@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram import types
 
-from dob_func.dob_func import *
+from dob_func.dob_func_ import *
 from keyboards.keyboard import order_admin_menu_kb
 from model.order import Orders
 
@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 async def show_my_order(callback: types.CallbackQuery):
     """ Открывает корзину"""
     logging.info(f"пользователь {callback.from_user.username} открыл корзину")
-    await show_order(router, callback.from_user.id)
+    await show_order(callback.from_user.id)
     await callback.answer()
 
 
@@ -23,7 +23,7 @@ async def show_admin_order(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} открыл корзину")
     ids = callback.data.split('_')[1]
     order = await mongo_db.get_order(ids)
-    await show_client_order(router, order, callback.from_user.id)
+    await show_client_order(order, callback.from_user.id)
     await callback.answer()
 
 
@@ -51,7 +51,7 @@ async def show_admin_order(callback: types.CallbackQuery):
     ids = callback.data.split('_')[1]
     order = await mongo_db.get_reqwest(ids)
     print(order)
-    await show_client_reqwest(router, order, callback.from_user.id)
+    await show_client_reqwest(order, callback.from_user.id)
     await callback.answer()
 
 
@@ -62,7 +62,7 @@ async def add_basket_main(callback: types.CallbackQuery):
     logging.info(
         f"пользователь {callback.from_user.username} Добавляет в корзину товар \n"
         f"{show_tofar(acc)} \n и переходит в главное меню")
-    await show_main_menu(router, callback.from_user.id)
+    await show_main_menu(callback.from_user.id)
     await callback.answer()
 
 
@@ -88,8 +88,8 @@ async def add_orders(callback: types.CallbackQuery):
     await mongo_db.insert_order(acc.order)
     acc.order = Orders(id=str(uuid4()), product=[])
     await mongo_db.update_user(acc)
-    await send_admins(router, f"🎉 Вам пришёл заказ!", order_admin_menu_kb(), acc)
+    await send_admins(f"🎉 Вам пришёл заказ!", order_admin_menu_kb(), acc)
     logging.info(
         f"пользователь {callback.from_user.username} оплачивает товар \n"
         f"{show_tofar(acc)}")
-    await show_main_menu(router, callback.from_user.id)
+    await show_main_menu(callback.from_user.id)

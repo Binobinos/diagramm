@@ -1,11 +1,11 @@
-from decouple import config
+from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+from decouple import config
+
+from DB.db import DB
 
 BOT_TOKEN = config("BOT_TOKEN")
 MONGO_DB_URL = config("MONGO_DB_URL")
-USER_LOGIN = config("USER_L")
-USER_PASSWORD = config("USER_PASSWORD")
-storage = MemoryStorage()
 parallels = {
     "5": [["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", 'У'],
           ['Биология', "География", "ИЗО", "Английский язык", "Информатика", "Литература", "Математика", "Музыка",
@@ -34,3 +34,7 @@ parallels = {
             "Алгебра и начало мат. анализа", "Геометрия", "Музыка",
             "ОДНКР", "Русский язык", "Труд", "Обществознание", "Физра", "Физика", 'ОБЖ']]
 }
+storage = MemoryStorage()
+db = Dispatcher(storage=storage)
+bot = Bot(token=BOT_TOKEN)
+mongo_db = DB(MONGO_DB_URL, "login")

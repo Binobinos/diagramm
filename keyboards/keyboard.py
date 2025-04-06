@@ -7,7 +7,6 @@ from dob_func.price import calculating_the_price
 from model.User import User
 from model.order import Orders
 from model.reqwest import Reqwest
-
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 
@@ -55,10 +54,10 @@ def orders_menu_kb(orders: List[Orders], start: int = 0):
     return main_kb(builder, ad=1)
 
 
-def Technical_support_menu_kb(Reqwest: List[Reqwest], start: int = 0):
+def technical_support_menu_kb(reqwest: List[Reqwest], start: int = 0):
     builder = InlineKeyboardBuilder()
-    if not start + 6 > len(Reqwest):
-        for number, order in enumerate(Reqwest[start:start + 6]):
+    if not start + 6 > len(reqwest):
+        for number, order in enumerate(reqwest[start:start + 6]):
             builder.button(text=f"{order.messages[:32]} - {order.username}",
                            callback_data=f"*order-new_{order.id_}")
         if not start == 0:
@@ -67,7 +66,7 @@ def Technical_support_menu_kb(Reqwest: List[Reqwest], start: int = 0):
         else:
             builder.button(text=f">>", callback_data=f"Technical_support_{start + 6}")
     else:
-        for number, order in enumerate(Reqwest[start:]):
+        for number, order in enumerate(reqwest[start:]):
             builder.button(text=f"{order.messages[:32]} - {order.username}",
                            callback_data=f"*Technical-support_{order.id_}")
         builder.button(text=f"<<", callback_data=f"Technical_support_{start - 6}")
