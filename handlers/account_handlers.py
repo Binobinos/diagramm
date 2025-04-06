@@ -5,7 +5,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dob_func.dob_func_ import *
 from keyboards.keyboard import classes_kb, parallels_kb_edit, parallels_kb, edit_account_kb
 from main import *
-from model.User import User
+from model.user import User
 from states.states import Registration, EditAccount
 
 router = Router()

@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel
 
-from model.temp_Order import TempOrder
+from model.temp_order import TempOrder
 
 
 class Orders(BaseModel):

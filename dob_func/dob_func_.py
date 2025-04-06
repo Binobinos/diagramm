@@ -8,10 +8,10 @@ import dob_func
 from DB.db import DB
 from keyboards.keyboard import help_menu_kb, support_menu_kb, parallels_kb, orders_admin_menu_kb, korzin_null, \
     order_kb_show, predmet_menu_kb, main_menu_kb, orders_menu_kb, technical_support_menu_kb
-from model.User import User
+from model.user import User
 from model.order import Orders
 from model.reqwest import Reqwest
-from model.temp_Order import TempOrder
+from model.temp_order import TempOrder
 from states.states import Support, Registration
 
 user_menu_messages = {}

@@ -2,7 +2,7 @@ from typing import Optional, List, Any, Mapping
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from model.User import User
+from model.user import User
 from model.order import Orders
 from model.reqwest import Reqwest
 

@@ -4,7 +4,7 @@ from typing import List
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from dob_func.price import calculating_the_price
-from model.User import User
+from model.user import User
 from model.order import Orders
 from model.reqwest import Reqwest
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

@@ -4,7 +4,7 @@ from aiogram import types
 from dob_func.dob_func_ import *
 from dob_func.price import calculating_the_price
 from keyboards.keyboard import accounts_cht_kb, accounts_type_kb, accounts_tip_o_kb, edit_zacaz_kb
-from model.temp_Order import TempOrder
+from model.temp_order import TempOrder
 
 router = Router()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

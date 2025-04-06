@@ -9,7 +9,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from Nots.test import *
 from dob_func.dob_func_ import *
 from keyboards.keyboard import error_menu_kb
-from model.User import User
+from model.user import User
 
 router = Router()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
