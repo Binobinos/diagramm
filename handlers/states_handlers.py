@@ -36,7 +36,7 @@ async def edit_fio(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer("✅ ФИО успешно изменено!")
     logging.info(f"пользователь {message.from_user.username} изменил ФИО на {fio}")
-    await show_main_menu(router, user_id)
+    await show_main_menu(user_id)
 
 
 @router.message(Support.message)
@@ -51,7 +51,7 @@ async def technical_support_message(message: types.Message, state: FSMContext):
     await mongo_db.insert_reqwest(request)
     await message.answer("✅ Сообщение успешно отправленною")
     await state.clear()
-    await send_admins(router, f"{datetime.date.today()} - {messages}", support_admin_menu_kb(user_id), acc)
+    await send_admins(f"{datetime.date.today()} - {messages}", support_admin_menu_kb(user_id), acc)
 
 
 @router.message(Registration.enter_fio)
@@ -85,11 +85,11 @@ async def account_create(message: types.Message, state: FSMContext):
         await state.clear()
         await message.answer("✅ Аккаунт успешно создан!")
         logging.info(f"пользователь {message.from_user.username} создал аккаунт\n {acc.model_dump()}")
-        await show_main_menu(router, user_id)
+        await show_main_menu(user_id)
     else:
         await message.answer("❌Такой аккаунт уже есть")
         logging.info(f"пользователь {message.from_user.username} пытается войти в аккаунт \n{acc_.model_dump()}")
         await state.set_state(EditAccount.edit_class)
         data = await state.get_data()
-        await send_or_edit_menu(router, user_id, "Выберите новый класс:",
+        await send_or_edit_menu(user_id, "Выберите новый класс:",
                                 classes_kb(parallels=parallels, parallel=data['parallel']))
