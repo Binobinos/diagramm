@@ -13,9 +13,7 @@ from model.user import User
 
 router = Router()
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
-type_items = {"Работа на уроке": 1, "Самостоятельная работа": 1.04, "Проверочная работа": 1.05,
-              "Контрольная работа": 1.06}
-
+type_items = config.type_items
 
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):

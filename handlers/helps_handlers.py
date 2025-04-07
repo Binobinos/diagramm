@@ -21,5 +21,3 @@ async def help_(callback: types.CallbackQuery):
     print(list(texts.values())[int(_id)])
     await help_menu(callback.from_user.id, list(texts.values())[int(_id)], texts.keys())
     await callback.answer()
-
-

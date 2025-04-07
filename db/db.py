@@ -9,7 +9,7 @@ from model.reqwest import Reqwest
 
 class DB:
     """ Класс для работы с базой данных mongo db motor"""
-    __slots__ = ["client", "db"]  # Ускорение через статичные поля
+    __slots__ = ["client", "db"]
 
     def __init__(self, client: str, db_name: str):
         """Инициализация подключения к базе данных."""

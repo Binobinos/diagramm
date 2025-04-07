@@ -3,6 +3,7 @@ from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from func.dob_func_ import *
+from func.func_text import show_acc
 from keyboards.keyboard import classes_kb, parallels_kb_edit, parallels_kb, edit_account_kb
 from main import *
 from model.user import User

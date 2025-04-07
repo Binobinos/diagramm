@@ -1,7 +1,10 @@
+from uuid import uuid4
+
 from aiogram import Router, F
 from aiogram import types
 
 from func.dob_func_ import *
+from func.func_text import show_product
 from func.prices import calculating_the_price
 from keyboards.keyboard import accounts_cht_kb, accounts_type_kb, accounts_tip_o_kb, edit_zacaz_kb
 from model.temp_order import TempOrder

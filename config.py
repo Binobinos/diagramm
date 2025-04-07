@@ -8,6 +8,8 @@ from db.db import DB
 
 BOT_TOKEN = config("BOT_TOKEN")
 MONGO_DB_URL = config("MONGO_DB_URL")
+USER_LOGIN = config("USER_L")
+USER_PASSWORD = config("USER_PASSWORD")
 LOGGING_LEVEL = logging.INFO
 type_items = {"Работа на уроке": 1,
               "Самостоятельная работа": 1.04,
