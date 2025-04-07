@@ -8,8 +8,7 @@ from model.temp_order import TempOrder
 
 router = Router()
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
-type_items = {"Работа на уроке": 1, "Самостоятельная работа": 1.04, "Проверочная работа": 1.05,
-              "Контрольная работа": 1.06}
+type_items = config.type_items
 
 
 @router.callback_query(F.data == "my_predmet")
@@ -80,16 +79,22 @@ async def choosing_evaluations(callback: types.CallbackQuery):
 @router.callback_query(F.data.startswith("type_"))
 async def select_class(callback: types.CallbackQuery):
     user_id = callback.from_user.id
-    predmets = callback.data.split("_")[1]
+    estimation = callback.data.split("_")[1]
     acc = await mongo_db.get_user(user_id)
-    acc.temp_order["Оценка"] = predmets
-    logging.info(f"пользователь {callback.from_user.username} выбрал оценку {predmets}")
+    acc.temp_order["Оценка"] = estimation
+    logging.info(f"пользователь {callback.from_user.username} выбрал оценку {estimation}")
     await mongo_db.update_user(acc)
     acc = await mongo_db.get_user(user_id)
-    temp_order = TempOrder(id=str(uuid4()), object=acc.temp_order["предмет"], quarter=acc.temp_order["Четверть"],
-                           type=acc.temp_order["Тип оценки"], estimation=acc.temp_order["Оценка"], price=int(
-            calculating_the_price({acc.temp_order["Тип оценки"]: {"1 Оценка": 0, "2 Оценка": acc.temp_order["Оценка"],
-                                                                  "предмет": acc.temp_order["предмет"]}})))
+    price = calculating_the_price({acc.temp_order["Тип оценки"]:
+                                       {"1 Оценка": 0,
+                                        "2 Оценка": acc.temp_order["Оценка"],
+                                        "предмет": acc.temp_order["предмет"]}})
+    temp_order = TempOrder(id=str(uuid4()),
+                           object=acc.temp_order["предмет"],
+                           quarter=acc.temp_order["Четверть"],
+                           type=acc.temp_order["Тип оценки"],
+                           estimation=acc.temp_order["Оценка"],
+                           price=int(price))
     acc.order.products.append(temp_order)
     acc.temp_order = {}
     text = (
