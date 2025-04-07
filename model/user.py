@@ -9,7 +9,7 @@ from model.order import Orders
 class User(BaseModel):
     id: int
     username: str
-    ban: bool = False
+    is_ban: bool = False
     password: str = "qwerty123456"
     full_name: str
     parallel: int
