@@ -5,9 +5,10 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 import config
 from func.prices import calculating_the_price
-from model.user import User
 from model.order import Orders
 from model.reqwest import Reqwest
+from model.user import User
+
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
 
@@ -22,7 +23,7 @@ def main_menu_kb(acc: User):
     builder = InlineKeyboardBuilder()
     builder.button(text="📙 Предметы", callback_data="my_predmet")
     builder.button(text="🙍‍♂️ Мой аккаунт", callback_data="my_accounts")
-    builder.button(text="ℹ️ Помощь", callback_data="help")
+    builder.button(text="ℹ️ Помощь", callback_data="help_0")
     builder.button(text="🛠 Тех-поддержка", callback_data="Technical_support")
     builder.button(text="🛒 Корзина", callback_data="order")
     builder.button(text="📚 ДЗ", callback_data="homework")
@@ -77,12 +78,10 @@ def technical_support_menu_kb(reqwest: List[Reqwest], start: int = 0):
     return main_kb(builder, ad=1)
 
 
-def help_menu_kb():
+def help_menu_kb(texts):
     builder = InlineKeyboardBuilder()
-    builder.button(text="💲 Оплата", callback_data="help_1")
-    builder.button(text="📂 Цена-образование", callback_data="help_2")
-    builder.button(text="🔑 Безопасность", callback_data="help_3")
-    builder.button(text="🛠 Гарантии", callback_data="help_4")
+    for num, text in enumerate(texts):
+        builder.button(text=f"{text}{num}", callback_data=f"help_{num}")
     return main_kb(builder, ad=1)
 
 

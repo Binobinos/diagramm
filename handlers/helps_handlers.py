@@ -1,43 +1,25 @@
 from aiogram import Router, F
 from aiogram import types
 
-from func.dob_func_ import help_menu, help_1_menu, help_2_menu, help_3_menu, help_4_menu
+from func.dob_func_ import help_menu
 from main import *
 
 router = Router()
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
 
-@router.callback_query(F.data == "help")
+@router.callback_query(F.data.startswith("help"))
 async def help_(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_menu(callback.from_user.id)
+    _id = callback.data.split("_")[1]
+    texts = {
+        "💲 Оплата": "оплата",
+        "📂 Цена-образование": "оплата",
+        "🔑 Безопасность": "цена",
+        "🛠 Гарантии": "гарантии"
+    }
+    print(list(texts.values())[int(_id)])
+    await help_menu(callback.from_user.id, list(texts.values())[int(_id)], texts.keys())
     await callback.answer()
 
 
-@router.callback_query(F.data == "help_1")
-async def help_1(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_1_menu(callback.from_user.id)
-    await callback.answer()
-
-
-@router.callback_query(F.data == "help_2")
-async def help_2(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_2_menu(callback.from_user.id)
-    await callback.answer()
-
-
-@router.callback_query(F.data == "help_3")
-async def help_3(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_3_menu(callback.from_user.id)
-    await callback.answer()
-
-
-@router.callback_query(F.data == "help_4")
-async def help_4(callback: types.CallbackQuery):
-    logging.info(f"пользователь {callback.from_user.username} открыл справку")
-    await help_4_menu(callback.from_user.id)
-    await callback.answer()
