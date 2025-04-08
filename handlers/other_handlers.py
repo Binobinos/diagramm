@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import time
 
 from aiogram import Router, F
 from aiogram import types
@@ -25,7 +26,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
         await message.answer("👋 Добро пожаловать! Для начала создайте свой первый аккаунт.")
         await start_registration(user_id, state)
     else:
-        if not acc.ban:
+        if not acc.is_ban:
             await show_main_menu(user_id)
         else:
             logging.info(f"забаненный пользователь {user_name} нажал start")
@@ -42,7 +43,7 @@ async def back_to_main(callback: types.CallbackQuery, state: FSMContext):
         await callback.answer("👋 Добро пожаловать! Для начала создайте свой первый аккаунт.")
         await start_registration(user_id, state)
     else:
-        if not acc.ban:
+        if not acc.is_ban:
             logging.info(f"пользователь {callback.from_user.username} переходит в главное меню")
             await show_main_menu(callback.from_user.id)
             await callback.answer()
@@ -56,7 +57,7 @@ async def support(callback: types.CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
     user_name = callback.from_user.username
     acc: User = await mongo_db.get_user(user_id)
-    if not acc.ban:
+    if not acc.is_ban:
         logging.info(f"пользователь {user_name} нажал на тех-поддержку")
         await start_help(user_id, state)
         await callback.answer()
@@ -88,7 +89,7 @@ async def send_answer(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} получил ответ")
     await callback.answer()
 
-
+last = None
 @router.callback_query(F.data == "homework")
 async def homework(callback: types.CallbackQuery):
     """ Показывает домашнею работу"""
