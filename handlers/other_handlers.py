@@ -1,9 +1,8 @@
 import asyncio
 import datetime
-import time
 
 from aiogram import Router, F
-from aiogram import types
+from aiogram import types as tp
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -17,7 +16,7 @@ logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)
 type_items = config.type_items
 
 @router.message(Command("start"))
-async def cmd_start(message: types.Message, state: FSMContext):
+async def cmd_start(message: tp.Message, state: FSMContext):
     user_id = message.from_user.id
     user_name = message.from_user.username
     acc: User = await mongo_db.get_user(user_id)
@@ -34,7 +33,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
 
 @router.callback_query(F.data == "main_menu")
-async def back_to_main(callback: types.CallbackQuery, state: FSMContext):
+async def back_to_main(callback: tp.CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
     user_name = callback.from_user.username
     acc: User = await mongo_db.get_user(user_id)
@@ -53,7 +52,7 @@ async def back_to_main(callback: types.CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "Technical_support")
-async def support(callback: types.CallbackQuery, state: FSMContext):
+async def support(callback: tp.CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
     user_name = callback.from_user.username
     acc: User = await mongo_db.get_user(user_id)
@@ -67,7 +66,7 @@ async def support(callback: types.CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "_")
-async def error(callback: types.CallbackQuery):
+async def error(callback: tp.CallbackQuery):
     """ Ошибка хандлера"""
     await callback.answer()
     text = (
@@ -78,7 +77,7 @@ async def error(callback: types.CallbackQuery):
 
 
 @router.callback_query(F.data.startswith("answer_"))
-async def send_answer(callback: types.CallbackQuery):
+async def send_answer(callback: tp.CallbackQuery):
     """ Отправляет пользователю сообщение от администрации"""
     id_ = int(callback.data.split("_")[1])
     await send_or_edit_menu(id_,
@@ -91,7 +90,7 @@ async def send_answer(callback: types.CallbackQuery):
 
 last = None
 @router.callback_query(F.data == "homework")
-async def homework(callback: types.CallbackQuery):
+async def homework(callback: tp.CallbackQuery):
     """ Показывает домашнею работу"""
     id_ = int(callback.from_user.id)
     acc = await mongo_db.get_user(id_)
