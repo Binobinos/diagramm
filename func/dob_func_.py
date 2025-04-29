@@ -1,3 +1,4 @@
+import json
 import logging
 
 from aiogram.fsm.context import FSMContext
@@ -8,11 +9,11 @@ from keyboards.keyboard import (help_menu_kb,
                                 parallels_kb,
                                 orders_admin_menu_kb,
                                 predmet_menu_kb,
-                                main_menu_kb)
+                                main_menu_kb, predmet_help_menu_kb)
 from model.reqwest import Reqwest
 from model.user import User
 from states.states import Support, Registration
-
+from aiogram.enums import ParseMode
 user_menu_messages = {}
 
 mongo_db = config.mongo_db
@@ -26,7 +27,8 @@ async def send_or_edit_menu(user_id: int, text: str, keyboard):
                 chat_id=user_id,
                 message_id=user_menu_messages[user_id],
                 text=text,
-                reply_markup=keyboard
+                reply_markup=keyboard,
+                parse_mode=ParseMode.MARKDOWN_V2
             )
         else:
             msg = await config.bot.send_message(user_id, text, reply_markup=keyboard)
@@ -73,7 +75,6 @@ async def start_help(user_id: int, state: FSMContext):
         support_menu_kb()
     )
 
-
 async def show_object_menu(user_id: int):
     logging.info(f"пользователь {user_id} открыл меню выбора предмета")
     text = (
@@ -81,7 +82,31 @@ async def show_object_menu(user_id: int):
         "📙 Выберите Предмет из доступных"
     )
     account: User = await mongo_db.get_user(user_id)
-    await send_or_edit_menu(user_id, text, predmet_menu_kb(parallels=parallels, paralell=str(account.parallel)))
+    predmet = {}  # Инициализация переменной перед использованием
+    with open(r'D:\pythonProject1\API\user_school_class.json', 'r', encoding="utf-8") as file:
+        data: list = json.load(file)
+        for i in data:
+            if i[0] == f"{account.parallel} {account.class_name.lower()}":
+                predmet = i[1]["предметы"]
+                break
+    await send_or_edit_menu(user_id, text, predmet_menu_kb(parallels=list(predmet.keys())))
+
+
+async def show_object_home_menu(user_id: int):
+    logging.info(f"пользователь {user_id} открыл меню выбора оценок предмета")
+    text = (
+        "🎉 Здравствуйте! Вот список ваших предметов "
+        "📙 Выберите Предмет из доступных"
+    )
+    account: User = await mongo_db.get_user(user_id)
+    predmet = {}  # Инициализация переменной перед использованием
+    with open(r'D:\pythonProject1\API\user_school_class.json', 'r', encoding="utf-8") as file:
+        data: list = json.load(file)
+        for i in data:
+            if i[0] == f"{account.parallel} {account.class_name.lower()}":
+                predmet = i[1]["предметы"]
+                break
+    await send_or_edit_menu(user_id, text, predmet_help_menu_kb(parallels=list(predmet.keys())))
 
 
 async def start_registration(user_id: int, state: FSMContext):

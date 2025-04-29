@@ -12,13 +12,12 @@ from states.states import Registration, EditAccount
 router = Router()
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
-
 @router.callback_query(F.data == "my_accounts")
 async def show_account(callback: types.CallbackQuery):
     """
     Отображение информации об аккаунте
     :param callback: Функция Вызова телеграмма
-    :return: Nots
+    :return: API
     """
     user_id = callback.from_user.id
     acc: User = await mongo_db.get_user(user_id)

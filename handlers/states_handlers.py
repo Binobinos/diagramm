@@ -12,7 +12,6 @@ from states.states import *
 router = Router()
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
-
 @router.message(EditAccount.edit_fio)
 async def edit_fio(message: types.Message, state: FSMContext):
     """ Изменяет ФИО пользователя """

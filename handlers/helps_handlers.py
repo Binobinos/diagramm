@@ -7,7 +7,6 @@ from main import *
 router = Router()
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
-
 @router.callback_query(F.data.startswith("help"))
 async def help_(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} открыл справку")

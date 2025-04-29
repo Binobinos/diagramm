@@ -1,12 +1,11 @@
 import asyncio
-import datetime
 
 from aiogram import Router, F
 from aiogram import types as tp
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from Nots.test import *
+from API.test import *
 from func.dob_func_ import *
 from keyboards.keyboard import error_menu_kb
 from model.user import User
@@ -14,6 +13,7 @@ from model.user import User
 router = Router()
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 type_items = config.type_items
+
 
 @router.message(Command("start"))
 async def cmd_start(message: tp.Message, state: FSMContext):
@@ -89,6 +89,8 @@ async def send_answer(callback: tp.CallbackQuery):
     await callback.answer()
 
 last = None
+
+
 @router.callback_query(F.data == "homework")
 async def homework(callback: tp.CallbackQuery):
     """ Показывает домашнею работу"""
@@ -135,6 +137,87 @@ async def homework(callback: tp.CallbackQuery):
         await progress_msg.delete()
 
         # Отправляем финальное сообщение
+        await send_or_edit_menu(id_, f"{result}",
+                                InlineKeyboardBuilder().button(text="⬅️ В главное меню",
+                                                               callback_data="main_menu").as_markup())
+
+    except Exception as e:
+        stop_event.set()
+        await progress_msg.edit_text(f"❌ Ошибка: {str(e)}")
+        logging.error(f"Ошибка: {str(e)}")
+
+
+@router.callback_query(F.data == "evaluations")
+async def show_my_object(callback: tp.CallbackQuery):
+    logging.info(f"пользователь {callback.from_user.username} открыл меню выбора предмета оценки")
+    await show_object_home_menu(callback.from_user.id)
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("es_"))
+async def evaluations(callback: tp.CallbackQuery):
+    """ Показывает оценки пользователя"""
+    objects = callback.data.split("_")[1]
+    id_ = int(callback.from_user.id)
+    acc = await mongo_db.get_user(id_)
+    auth = SchoolAuth()
+
+    # Отвечаем сразу и запускаем анимацию
+    await callback.answer("⏳ Начинаю загрузку...")
+    progress_msg = await callback.message.answer("🌑 Загрузка данных...")
+
+    # Создаем флаг для остановки анимации
+    stop_event = asyncio.Event()
+
+    # Задача для анимации
+    async def animate_progress():
+        frames = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"]
+        while not stop_event.is_set():
+            for frame in frames:
+                if stop_event.is_set():
+                    break
+                await progress_msg.edit_text(f"{frame} Идёт загрузка...")
+                await asyncio.sleep(0.3)
+
+    # Запускаем анимацию
+    animation_task = asyncio.create_task(animate_progress())
+
+    try:
+        result = "Ничего не задано или не найдено"
+        if auth.login(config.USER_LOGIN, config.USER_PASSWORD):
+            # Запускаем синхронную задачу в потоке
+            if objects != "all":
+                result = await asyncio.to_thread(
+                    print_ozen,
+                    f"{objects}", f"{acc.parallel} {acc.class_name.lower()}",
+                    acc.full_name.split()[0] + " " + acc.full_name.split()[1], auth
+                )
+            else:
+                predmet = {}  # Инициализация переменной перед использованием
+                with open(r'D:\pythonProject1\API\user_school_class.json', 'r', encoding="utf-8") as file:
+                    data: list = json.load(file)
+                    for i in data:
+                        if i[0] == f"{acc.parallel} {acc.class_name.lower()}":
+                            predmet = i[1]["предметы"]
+                            break
+                predmets = list(predmet.keys())
+                result = ""
+                for name in predmets:
+                    result += await asyncio.to_thread(
+                        print_ozen,
+                        f"{name}", f"{acc.parallel} {acc.class_name.lower()}",
+                        acc.full_name.split()[0] + " " + acc.full_name.split()[1], auth
+                    )
+
+        # Останавливаем анимацию
+        stop_event.set()
+        await animation_task
+
+        # Удаляем сообщение с прогрессом
+        await progress_msg.delete()
+
+        # Отправляем финальное сообщение
+        print(len(result))
         await send_or_edit_menu(id_, f"{result}",
                                 InlineKeyboardBuilder().button(text="⬅️ В главное меню",
                                                                callback_data="main_menu").as_markup())

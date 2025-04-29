@@ -27,6 +27,7 @@ def main_menu_kb(acc: User):
     builder.button(text="🛠 Тех-поддержка", callback_data="Technical_support")
     builder.button(text="🛒 Корзина", callback_data="order")
     builder.button(text="📚 ДЗ", callback_data="homework")
+    builder.button(text="📖 Оценки", callback_data="evaluations")
     builder.adjust(2)
     if acc.user_level == "admin":
         builder.button(text="💼 Заказы", callback_data="Orders_0")
@@ -144,11 +145,19 @@ def accounts_cht_kb():
     return main_kb(builder)
 
 
-def predmet_menu_kb(paralell: str, parallels):
+def predmet_menu_kb(parallels):
     builder = InlineKeyboardBuilder()
-    for predmet in sorted(parallels[paralell][1]):
-        builder.button(text=f"{predmet}", callback_data=f"predmet_{predmet}")
+    for predmet in sorted(parallels):
+        builder.button(text=f"{predmet}", callback_data=f"pt_{predmet}")
     return main_kb(builder)
+
+
+def predmet_help_menu_kb(parallels):
+    builder = InlineKeyboardBuilder()
+    for predmet in sorted(parallels):
+        builder.button(text=f"{str(predmet)}", callback_data=f"es_{str(predmet)}")
+    builder.button(text=f"Показать по всем предметам", callback_data=f"es_all")
+    return main_kb(builder, ad=1)
 
 
 # Меню редактирования аккаунта

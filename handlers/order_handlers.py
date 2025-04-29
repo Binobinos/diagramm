@@ -13,7 +13,6 @@ from model.order import Orders
 router = Router()
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
-
 @router.callback_query(F.data == "order")
 async def show_my_order(callback: types.CallbackQuery):
     """ Открывает корзину"""

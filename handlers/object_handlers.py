@@ -13,7 +13,6 @@ router = Router()
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 type_items = config.type_items
 
-
 @router.callback_query(F.data == "my_predmet")
 async def show_my_object(callback: types.CallbackQuery):
     logging.info(f"пользователь {callback.from_user.username} открыл меню выбора предмета")
@@ -21,23 +20,23 @@ async def show_my_object(callback: types.CallbackQuery):
     await callback.answer()
 
 
-@router.callback_query(F.data.startswith("predmet_"))
+@router.callback_query(F.data.startswith("pt_"))
 async def show_account(callback: types.CallbackQuery):
     """
     Выбор Четверти
-    :param callback: Nots
-    :return: Nots
+    :param callback: API
+    :return: API
     """
     user_id = callback.from_user.id
-    object = callback.data.split("_")[1]
+    objects = callback.data.split("_")[1]
     acc = await mongo_db.get_user(user_id)
-    acc.temp_order["предмет"] = object
+    acc.temp_order["предмет"] = objects
     await mongo_db.update_user(acc)
     text = (
-        f"Вы выбрали {object}\n"
+        f"Вы выбрали {objects}\n"
         "Выберите Четверть:"
     )
-    logging.info(f"пользователь {callback.from_user.username} выбрал предмет {object}")
+    logging.info(f"пользователь {callback.from_user.username} выбрал предмет {objects}")
     await send_or_edit_menu(user_id, text, accounts_cht_kb())
     await callback.answer()
 
@@ -62,8 +61,8 @@ async def type_assessment(callback: types.CallbackQuery):
 async def choosing_evaluations(callback: types.CallbackQuery):
     """
     Выбор Четверти
-    :param callback: Nots
-    :return: Nots
+    :param callback: API
+    :return: API
     """
     user_id = callback.from_user.id
     predmets = callback.data.split("_")[1]
@@ -89,9 +88,9 @@ async def select_class(callback: types.CallbackQuery):
     await mongo_db.update_user(acc)
     acc = await mongo_db.get_user(user_id)
     price = calculating_the_price({acc.temp_order["Тип оценки"]:
-                                       {"1 Оценка": 0,
-                                        "2 Оценка": acc.temp_order["Оценка"],
-                                        "предмет": acc.temp_order["предмет"]}})
+                                   {"1 Оценка": 0,
+                                    "2 Оценка": acc.temp_order["Оценка"],
+                                    "предмет": acc.temp_order["предмет"]}})
     temp_order = TempOrder(id=str(uuid4()),
                            object=acc.temp_order["предмет"],
                            quarter=acc.temp_order["Четверть"],
