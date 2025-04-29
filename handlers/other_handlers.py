@@ -5,7 +5,7 @@ from aiogram import types as tp
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from API.test import *
+from API.api_school import *
 from func.dob_func_ import *
 from keyboards.keyboard import error_menu_kb
 from model.user import User
@@ -123,7 +123,7 @@ async def homework(callback: tp.CallbackQuery):
         if auth.login(config.USER_LOGIN, config.USER_PASSWORD):
             # Запускаем синхронную задачу в потоке
             result = await asyncio.to_thread(
-                set_homework,
+                get_homework,
                 f"{acc.parallel} {acc.class_name.lower()}",
                 type="recent",
                 auth=auth

@@ -2,19 +2,18 @@ import datetime
 import json
 import random
 from types import SimpleNamespace
-
+from model.school_response_journal.school_response_main import Response
 import requests
 from requests.adapters import HTTPAdapter
+from tqdm import tqdm
 from urllib3.exceptions import InsecureRequestWarning
 
 import config
-from tqdm import tqdm
-# Отключение предупреждений SSL
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 class SchoolAuth:
     def __init__(self):
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         self.session = requests.Session()
         self.base_url = "https://sch604.online.petersburgedu.ru"
 
@@ -91,7 +90,7 @@ class SchoolAuth:
             )
             response.raise_for_status()
             # Преобразуем JSON в объект с точечной нотацией
-            return json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d))
+            return Response(**json.loads(response.text))
 
         except requests.exceptions.RequestException as e:
             print(f"Ошибка запроса: {str(e)}")
@@ -174,7 +173,6 @@ class SchoolAuth:
                                 user_class[" ".join(str(k.name).split()[:2])]["Ученики"] = student
         save_to_json(sorted(user_class.items()), "user_school_class.json")
 
-
 # Функция для преобразования SimpleNamespace в словарь
 def convert_to_dict(obj):
     """Рекурсивно преобразует объект SimpleNamespace в словарь."""
@@ -237,33 +235,29 @@ def set_ozen(predmet: str, class_user: str, full_name: str, ozen: int = None):
     return response
 
 
-def printo(predmet: str, class_user: str, full_name: str, auth):
-    global a
-    id_user, predmet_user = get_user_info(predmet, class_user, full_name)
-    response = auth.make_authenticated_request({
-        "action": "getdata", "id": predmet_user
-    })
-    c = list(i for i in response.marks)
-    # print(list(i for i in response.lessons))
-    a = convert_to_dict(response.control_types)
-    # print(dict((i["id"], [i["cost"], i["desc"], i["name"]]) for i in a))
-    # print(dict((i["id"], round(float(i["cost"]), 1),) for i in a))
+def get_grades(predmet: str, class_user: str, full_name: str, auths):
+    """ Подготавливает оценки ученика в список"""
     text = []
-    for i in response.marks:
-        if i.student_id == id_user:
+    user_id, object_user = get_user_info(predmet, class_user, full_name)
+    responses = auths.make_authenticated_request({
+        "action": "getdata", "id": object_user
+    })
+    types_objects = convert_to_dict(responses.control_types)
+    for i in responses.marks:
+        if i.student_id == user_id:
             if i.type_id in ["401", "402", "403", "404", "405"]:
                 if not str(i.control_id).startswith("f"):
                     text.append((i.control_id, int(i.type_id[-1]),
-                                 round(float((y := list(t for t in response.controls if t.id == i.control_id)[0]).cost),
+                                 round(
+                                     float((y := list(t for t in responses.controls if t.id == i.control_id)[0]).cost),
                                        1),
-                                 list(b["name"] for b in a if b["id"] == y.type_id)[0],
-                                 list(k.date for k in response.lessons if k.id == y.lesson_id)[0],
-                                 list(k.teacher_name for k in response.lessons if k.id == y.lesson_id)[0]))
-                    # text += f"{i.control_id} - Оценка {i.type_id[-1]} - {round(float((y := list(t for t in response.controls if t.id == i.control_id)[0]).cost), 1)} - {list(b["desc"] for b in a if b["id"] == y.type_id)[0]} - {list(f"{k.date} - {k.teacher_name}" for k in response.lessons if k.id == y.lesson_id)[0]}\n"
-    return text, response.periods
+                                 list(b["name"] for b in types_objects if b["id"] == y.type_id)[0],
+                                 list(k.date for k in responses.lessons if k.id == y.lesson_id)[0],
+                                 list(k.teacher_name for k in responses.lessons if k.id == y.lesson_id)[0]))
+    return text, responses.periods
 
 
-def set_homework(class_user: str, *, type: str = "all", auth):
+def get_homework(class_user: str, *, type: str = "recent", auth):
     predmet = {}  # Инициализация переменной перед использованием
     with open(r'D:\pythonProject1\API\user_school_class.json', 'r', encoding="utf-8") as file:
         data: list = json.load(file)
@@ -297,13 +291,11 @@ def set_homework(class_user: str, *, type: str = "all", auth):
 
 
 def print_ozen(predmet: str, class_user: str, full_name: str, auths):
-    a, periods = printo(predmet, class_user, full_name, auth=auths)
+    a, periods = get_grades(predmet, class_user, full_name, auths=auths)
     b = []
     for i in a:
-        # print(i, datetime.datetime.strptime(i[4], "%Y-%m-%d"))
         b.append(list(i[:4]) + [datetime.datetime.strptime(i[4], "%Y-%m-%d")] + list(i[5:]))
-    text = ""
-    text += f"Оценки по {predmet} у {full_name} {class_user} на {datetime.datetime.now().strftime("%d.%m.%y")}:\n"
+    text = f"Оценки по {predmet} у {full_name} {class_user} на {datetime.datetime.now().strftime("%d.%m.%y")}:\n"
     last_p = 0
     for num, i in enumerate(periods):
         start = datetime.datetime.strptime(i.date_from, "%Y-%m-%d")
@@ -335,4 +327,13 @@ def print_ozen(predmet: str, class_user: str, full_name: str, auths):
 if __name__ == "__main__":
     auth = SchoolAuth()
     auth.login(config.USER_LOGIN, config.USER_PASSWORD)
-    auth.save_class(auth)
+    user_id, object_user = get_user_info("Алгебра-1", "8 а", "Бочко Михаил")
+    print(get_homework("8 а", type="recent", auth=auth))
+    '''aa, periods = get_grades("Алгебра-1", "8 а", "Бочко Михаил", auth)
+    start = datetime.datetime.strptime(periods[3].date_from, "%Y-%m-%d")
+    end = datetime.datetime.strptime(periods[3].date_to, "%Y-%m-%d")
+    b = []
+    for i in aa:
+        b.append(list(i[:4]) + [datetime.datetime.strptime(i[4], "%Y-%m-%d")] + list(i[5:]))
+    b = map(lambda x: x[1:3]+[x[4]], list(filter(lambda x: start <= x[4] <= end, b)))'''
+

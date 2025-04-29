@@ -157,7 +157,7 @@ def predmet_help_menu_kb(parallels):
     for predmet in sorted(parallels):
         builder.button(text=f"{str(predmet)}", callback_data=f"es_{str(predmet)}")
     builder.button(text=f"Показать по всем предметам", callback_data=f"es_all")
-    return main_kb(builder, ad=1)
+    return main_kb(builder, ad=2    )
 
 
 # Меню редактирования аккаунта
