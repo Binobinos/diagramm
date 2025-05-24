@@ -1,6 +1,7 @@
 import json
 import logging
 
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
 import config
@@ -13,27 +14,37 @@ from keyboards.keyboard import (help_menu_kb,
 from model.reqwest import Reqwest
 from model.user import User
 from states.states import Support, Registration
-from aiogram.enums import ParseMode
+
 user_menu_messages = {}
 
 mongo_db = config.mongo_db
 parallels = config.parallels
 
 
+async def send_photo_with_buttons(user_id: int, caption: str):
+    photo = "https://avatars.mds.yandex.net/i?id=542bef1a9cddbf575433c7d1abb43d4c_l-12483207-images-thumbs&n=13"  # для URL
+
+    await config.bot.send_photo(
+        chat_id=user_id,
+        photo=photo,
+        caption=caption,
+        parse_mode=ParseMode.MARKDOWN_V2
+    )
+
 async def send_or_edit_menu(user_id: int, text: str, keyboard):
+    print(user_menu_messages)
     try:
         if user_id in user_menu_messages:
             await config.bot.edit_message_text(
                 chat_id=user_id,
                 message_id=user_menu_messages[user_id],
                 text=text,
-                reply_markup=keyboard,
-                parse_mode=ParseMode.MARKDOWN_V2
+                reply_markup=keyboard
             )
         else:
             msg = await config.bot.send_message(user_id, text, reply_markup=keyboard)
             user_menu_messages[user_id] = msg.message_id
-    except Exception:
+    except Exception as e:
         msg = await config.bot.send_message(user_id, text, reply_markup=keyboard)
         user_menu_messages[user_id] = msg.message_id
 
@@ -119,6 +130,8 @@ async def start_registration(user_id: int, state: FSMContext):
     )
 
 
-async def help_menu(user_id: int, text: str, buttons):
+async def help_menu(user_id: int, text: str, buttons, current=0):
     logging.info(f"пользователь {user_id} открыл меню помощи")
-    await send_or_edit_menu(user_id, text, help_menu_kb(buttons))
+    await send_or_edit_menu(user_id, text, help_menu_kb(buttons, current))
+print("", flush=True)
+float("101")

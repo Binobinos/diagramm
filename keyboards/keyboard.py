@@ -23,7 +23,7 @@ def main_menu_kb(acc: User):
     builder = InlineKeyboardBuilder()
     builder.button(text="📙 Предметы", callback_data="my_predmet")
     builder.button(text="🙍‍♂️ Мой аккаунт", callback_data="my_accounts")
-    builder.button(text="ℹ️ Помощь", callback_data="help_0")
+    builder.button(text="ℹ️ Помощь", callback_data="help_-1")
     builder.button(text="🛠 Тех-поддержка", callback_data="Technical_support")
     builder.button(text="🛒 Корзина", callback_data="order")
     builder.button(text="📚 ДЗ", callback_data="homework")
@@ -79,10 +79,11 @@ def technical_support_menu_kb(reqwest: List[Reqwest], start: int = 0):
     return main_kb(builder, ad=1)
 
 
-def help_menu_kb(texts):
+def help_menu_kb(texts, current: int = 0):
     builder = InlineKeyboardBuilder()
+    print(current)
     for num, text in enumerate(texts):
-        builder.button(text=f"{text}{num}", callback_data=f"help_{num}")
+        builder.button(text=f">{text}<" if int(current) == num else f"{text}", callback_data=f"help_{num}")
     return main_kb(builder, ad=1)
 
 

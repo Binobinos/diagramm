@@ -49,8 +49,8 @@ class SchoolAuth:
             "Accept": "",
             "Accept-Encoding": "",
             "Accept-Language": "",
-            "Origin": self.base_url,
-            "Referer": initial_url,
+            "Origin": "",
+            "Referer": "",
             "Sec-Fetch-Dest": "",
             "Sec-Fetch-Mode": "",
             "Sec-Fetch-Site": "",
@@ -112,7 +112,7 @@ class SchoolAuth:
             )
             response.raise_for_status()
             # Преобразуем JSON в объект с точечной нотацией
-            return json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d))
+            return Response(**json.loads(response.text))
 
         except requests.exceptions.RequestException as e:
             print(f"Ошибка запроса: {str(e)}")
@@ -131,10 +131,9 @@ class SchoolAuth:
                 verify=False,
                 timeout=10
             )
-            # response.raise_for_status()
+            response.raise_for_status()
             # Преобразуем JSON в объект с точечной нотацией
-            print(response)
-            # return json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d))
+            return Response(**json.loads(response.text))
 
         except requests.exceptions.RequestException as e:
             print(f"Ошибка запроса: {str(e)}")
@@ -328,12 +327,8 @@ if __name__ == "__main__":
     auth = SchoolAuth()
     auth.login(config.USER_LOGIN, config.USER_PASSWORD)
     user_id, object_user = get_user_info("Алгебра-1", "8 а", "Бочко Михаил")
-    print(get_homework("8 а", type="recent", auth=auth))
-    '''aa, periods = get_grades("Алгебра-1", "8 а", "Бочко Михаил", auth)
-    start = datetime.datetime.strptime(periods[3].date_from, "%Y-%m-%d")
-    end = datetime.datetime.strptime(periods[3].date_to, "%Y-%m-%d")
-    b = []
-    for i in aa:
-        b.append(list(i[:4]) + [datetime.datetime.strptime(i[4], "%Y-%m-%d")] + list(i[5:]))
-    b = map(lambda x: x[1:3]+[x[4]], list(filter(lambda x: start <= x[4] <= end, b)))'''
+    responses = auth.make_authenticated_request({
+        "action": "getdata", "id": object_user
+    })
+
 

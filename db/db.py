@@ -95,7 +95,7 @@ class DB:
 
     async def delete_reqwest(self, reqwest: Reqwest):
         """ Удаление обращения """
-        await self.db["reqwest"].delete_one({"id": reqwest.id})
+        await self.db["reqwest"].delete_one({"id_": reqwest.id})
         return reqwest
 
     async def update_reqwest(self, reqwest: Reqwest) -> Reqwest:
@@ -105,7 +105,7 @@ class DB:
         :return:
         """
         await self.db["reqwest"].update_one(
-            {"id": reqwest.id},
+            {"id_": reqwest.id},
             {"$set": reqwest.model_dump()}
         )
 

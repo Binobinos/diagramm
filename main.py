@@ -7,6 +7,7 @@ from middlewares.ban_check import BanMiddleware
 
 logging.basicConfig(level=config.LOGGING_LEVEL, format="%(asctime)s %(levelname)s %(message)s")
 
+
 async def main():
     logging.info(f"Бот запущен")
     config.db.message.middleware(BanMiddleware())  # Для сообщений
@@ -17,7 +18,7 @@ async def main():
                               states_handlers.router,
                               order_handlers.router,
                               other_handlers.router)
-    # await config.bot.delete_webhook(drop_pending_updates=Trll.....l.ue)
+    # await config.bot.delete_webhook(drop_pending_updates=True)
     await config.db.start_polling(config.bot)
 
 
